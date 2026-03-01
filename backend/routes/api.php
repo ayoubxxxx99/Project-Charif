@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\AuthController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -12,3 +13,14 @@ Route::get('/user', function (Request $request) {
 //  http://127.0.0.1:8000/api/apply
 Route::post('/apply', [ApplicationController::class, 'store']);
 Route::get('/applications', [ApplicationController::class, 'index']);
+
+
+Route::post('/login', [AuthController::class, 'login']);
+
+// Protected Routes (Only accessible with a valid Token)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/applications', [ApplicationController::class, 'index']);
+    Route::put('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
+
+    
+});

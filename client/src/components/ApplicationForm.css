@@ -34,4 +34,43 @@ button {
 
 button:hover { background-color: #219150; }
 
-.status-msg { margin-top: 20px; text-align: center; font-weight: bold; }
+.status-msg { margin-top: 20px; text-align: center; font-weight: bold; } 
+.admin-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.search-input {
+    flex: 2;
+    padding: 10px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.filter-select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+}
+
+.btn-logout {
+    padding: 8px 15px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn-logout:hover {
+    background: #dc2626;
+}

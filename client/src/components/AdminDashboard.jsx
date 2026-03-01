@@ -1,34 +1,95 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import './AdminDashboard.css'; // Don't forget to import the CSS!
+import { useNavigate } from 'react-router-dom'; // 1. Added this for redirection
+import './AdminDashboard.css';
 
 const AdminDashboard = () => {
     const [list, setList] = useState([]);
+    const navigate = useNavigate(); // 2. Initialize navigate
 
+    // 3. This function fetches the data
     const fetchApplications = () => {
-        axios.get('http://127.0.0.1:8000/api/applications')
-            .then(res => setList(res.data));
+        const token = localStorage.getItem('admin_token');
+        
+        axios.get('http://127.0.0.1:8000/api/applications', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => setList(res.data))
+        .catch(err => {
+            // If session expired or unauthorized, go to login
+            if(err.response?.status === 401) {
+                navigate('/login');
+            }
+        });
     };
 
-    useEffect(() => { fetchApplications(); }, []);
+    // 4. Added useEffect so data loads when the page opens
+    useEffect(() => {
+        fetchApplications();
+    }, []);
 
+    // 5. Added the update function for the buttons
     const handleStatusUpdate = async (id, newStatus) => {
+        const token = localStorage.getItem('admin_token');
         try {
-            await axios.put(`http://127.0.0.1:8000/api/applications/${id}/status`, {
-                status: newStatus
-            });
-            fetchApplications(); 
+            await axios.put(`http://127.0.0.1:8000/api/applications/${id}/status`, 
+                { status: newStatus },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            fetchApplications(); // Refresh the table
         } catch (err) {
             console.error("Update failed", err);
         }
     };
+const handleLogout = () => {
+    // 1. Remove the token from the browser
+    localStorage.removeItem('admin_token');
+    // 2. Send the admin back to the login page
+    navigate('/login');
+}; 
+const [searchTerm, setSearchTerm] = useState('');
+const [filterStatus, setFilterStatus] = useState('all');
 
+// This logic filters the list in real-time
+const filteredStudents = list.filter(student => {
+    const matchesSearch = student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          student.massar_code.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesFilter = filterStatus === 'all' || student.status === filterStatus;
+
+    return matchesSearch && matchesFilter;
+});
     return (
         <div className="admin-container">
             <div className="admin-header">
                 <h2>Lycée Charif Idrissi - Administration</h2>
-                <span style={{color: '#64748b'}}>{list.length} Candidatures</span>
+                <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
+                    <span style={{color: '#64748b'}}>{filteredStudents.length} Candidatures</span>
+                   <button className="btn-logout" onClick={handleLogout}>
+    Déconnexion
+</button>
+                </div>
             </div>
+
+            {/* --- NEW SEARCH & FILTER SECTION --- */}
+            <div className="admin-actions">
+                <input 
+                    type="text" 
+                    placeholder="Rechercher par nom ou Massar..." 
+                    className="search-input"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <select 
+                    className="filter-select"
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                    <option value="all">Tous les statuts</option>
+                    <option value="pending">En attente (Pending)</option>
+                    <option value="accepted">Acceptés</option>
+                    <option value="rejected">Refusés</option>
+                </select>
+            </div>
+            {/* ------------------------------------ */}
 
             <table className="admin-table">
                 <thead>
@@ -41,7 +102,8 @@ const AdminDashboard = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {list.map(student => (
+                    {/* We map the FILTERED list now */}
+                    {filteredStudents.map(student => (
                         <tr key={student.id}>
                             <td><strong>{student.full_name}</strong></td>
                             <td>{student.massar_code}</td>
