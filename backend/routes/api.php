@@ -13,14 +13,13 @@ Route::get('/user', function (Request $request) {
 //  http://127.0.0.1:8000/api/apply
 Route::post('/apply', [ApplicationController::class, 'store']);
 Route::get('/applications', [ApplicationController::class, 'index']);
-
+  Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/login', [AuthController::class, 'login']);
 
-// Protected Routes (Only accessible with a valid Token)
+// Protected Routes (khass ykun endk token)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/applications', [ApplicationController::class, 'index']);
     Route::put('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
 
-    
 });

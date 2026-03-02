@@ -24,7 +24,13 @@ const AdminDashboard = () => {
     };
 
     // 4. Added useEffect so data loads when the page opens
-    useEffect(() => {
+    useEffect(() => { const role = localStorage.getItem('user_role');
+    
+    if (role !== 'admin') {
+        // If not admin, send them away!
+        navigate('/'); 
+        return;
+    }
         fetchApplications();
     }, []);
 
@@ -42,11 +48,10 @@ const AdminDashboard = () => {
         }
     };
 const handleLogout = () => {
-    // 1. Remove the token from the browser
     localStorage.removeItem('admin_token');
-    // 2. Send the admin back to the login page
+    localStorage.removeItem('user_role'); // Clean up the role too
     navigate('/login');
-}; 
+};
 const [searchTerm, setSearchTerm] = useState('');
 const [filterStatus, setFilterStatus] = useState('all');
 

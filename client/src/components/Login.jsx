@@ -2,6 +2,8 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+import { Link } from 'react-router-dom';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -10,24 +12,24 @@ const Login = () => {
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
-        e.preventDefault();
-        setError('');
-        console.log("Tentative de connexion...");
-
-        try {
-            const response = await axios.post('http://127.0.0.1:8000/api/login', { 
-                email, 
-                password 
-            });
-            
-            console.log("Succès ! Token reçu.");
-            localStorage.setItem('admin_token', response.data.token);
+    e.preventDefault();
+    try {
+        const response = await axios.post('http://127.0.0.1:8000/api/login', { email, password });
+        
+        // 1. Save Token AND Role
+        localStorage.setItem('admin_token', response.data.token);
+        localStorage.setItem('user_role', response.data.user.role);
+        
+        // 2. Redirect based on role
+        if (response.data.user.role === 'admin') {
             navigate('/admin');
-        } catch (err) {
-            console.error("Erreur de connexion", err.response);
-            setError('Email ou mot de passe incorrect');
+        } else {
+            navigate('/'); // Students go to the application form
         }
-    };
+    } catch (err) {
+        setError('Identifiants incorrects');
+    }
+};
 
     return (
         <div className="login-page">
@@ -60,6 +62,9 @@ const Login = () => {
                     </div>
                     <button type="submit" className="btn-login">S'identifier</button>
                 </form>
+                <p style={{ marginTop: '20px', fontSize: '14px' }}>
+    Vous n'avez pas de compte ? <Link to="/register" style={{ color: '#2563eb', fontWeight: 'bold' }}>S'inscrire</Link>
+</p>
             </div>
         </div>
     );
