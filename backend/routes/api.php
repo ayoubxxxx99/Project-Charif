@@ -12,22 +12,14 @@ Route::post('/login', [AuthController::class, 'login']);
 // --- Protected Routes (Require Token) ---
 Route::middleware('auth:sanctum')->group(function () {
 
-    // Students use this to submit
+    // --- Student Specific ---
+    Route::get('/user-application', [ApplicationController::class, 'getUserApplication']);
     Route::post('/applications', [ApplicationController::class, 'store']);
 
-    // Admin uses these to manage
-   // --- Protected Routes (Require Token) ---
-Route::middleware('auth:sanctum')->group(function () {
-Route::post('/applications/send-convocations', [ApplicationController::class, 'sendConvocations']);
-    // 1. Specific/Static routes go FIRST
-    Route::put('/applications/bulk-status', [ApplicationController::class, 'bulkUpdateStatus']);
-
-    // 2. Dynamic routes (with {id}) go SECOND
-    Route::put('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
-
-    // ... rest of your routes
-    Route::post('/applications', [ApplicationController::class, 'store']);
+    // --- Admin Management ---
     Route::get('/applications', [ApplicationController::class, 'index']);
-});
+    Route::post('/applications/send-convocations', [ApplicationController::class, 'sendConvocations']);
+    Route::put('/applications/bulk-status', [ApplicationController::class, 'bulkUpdateStatus']);
+    Route::put('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
 }); ?>
 

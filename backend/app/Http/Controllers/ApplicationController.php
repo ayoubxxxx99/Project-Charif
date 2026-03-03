@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Mail;
 
 class ApplicationController extends Controller
 {
-    public function store(Request $request)
+   public function store(Request $request)
 {
-    // 1. Validate the form inputs
+    // 1. Validate inputs
     $validated = $request->validate([
         'full_name' => 'required|string|max:255',
         'massar_code' => 'required|string|unique:applications,massar_code',
@@ -25,7 +25,9 @@ class ApplicationController extends Controller
         'sport' => 'required|numeric|between:0,20',
     ]);
 
-    // 2. Automatically inject the email from the logged-in user
+    // 2. IMPORTANT: Link the application to the logged-in user
+    // Make sure 'user_id' is in the $fillable array of your Application Model!
+    $validated['user_id'] = $request->user()->id;
     $validated['email'] = $request->user()->email;
     $validated['status'] = 'pending';
 
@@ -37,7 +39,23 @@ class ApplicationController extends Controller
         'data' => $application
     ], 201);
 }
-    
+
+public function getUserApplication(Request $request)
+{
+    // Get the authenticated student via Sanctum
+    $user = $request->user();
+
+    // Find application by user_id
+    $application = Application::where('user_id', $user->id)->first();
+
+    // If no application, return null (200 OK) so React shows the form
+    if (!$application) {
+        return response()->json(null, 200);
+    }
+
+    return response()->json($application);
+}
+
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -104,4 +122,5 @@ class ApplicationController extends Controller
 
     return response()->json(['message' => 'Convocations envoyées avec succès']);
 }
+
 }

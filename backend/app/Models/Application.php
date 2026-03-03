@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Application extends Model
 {
 protected $fillable = [
+    'user_id',
     'full_name',
-    'email', 
+    'email',
     'massar_code',
     'maths',
     'physique',
