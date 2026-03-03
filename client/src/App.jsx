@@ -5,6 +5,7 @@ import Login from './components/Login'
 import Register from './components/Register';
 import StudentHome from './components/StudentHome';
 import ProtectedRoute from './components/ProtectedRoute';
+import AcceptedStudents from './components/AcceptedStudents';
 function App() {
     return (
         <Routes>
@@ -29,8 +30,15 @@ function App() {
             <Route path="/admin" element={
                 <ProtectedRoute requiredRole="admin">
                     <AdminDashboard />
+                    
                 </ProtectedRoute>
             } />
+            
+<Route path="/admin/accepted" element={
+    <ProtectedRoute requiredRole="admin">
+        <AcceptedStudents />
+    </ProtectedRoute>
+} />
         </Routes>
     );
 }

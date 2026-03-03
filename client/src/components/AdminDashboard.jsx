@@ -10,6 +10,7 @@ const AdminDashboard = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const navigate = useNavigate();
     const [minMean, setMinMean] = useState('');
+    const [selectedIds, setSelectedIds] = useState([]);
 const [showAdvancedModal, setShowAdvancedModal] = useState(false);
 const [activeSubjects, setActiveSubjects] = useState([]); // Stores names of subjects being filtered
 const [subjectValues, setSubjectValues] = useState({
@@ -17,6 +18,40 @@ const [subjectValues, setSubjectValues] = useState({
     langue_secondaire: '', histoire_geo: '', 
     education_islamique: '', sport: ''
 });
+
+// Toggle individual student
+const toggleSelect = (id) => {
+    setSelectedIds(prev => 
+        prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+};
+
+// Select or Deselect all visible students
+const toggleSelectAll = () => {
+    if (selectedIds.length === filteredStudents.length) {
+        setSelectedIds([]);
+    } else {
+        setSelectedIds(filteredStudents.map(s => s.id));
+    }
+};
+const handleBulkUpdate = async (newStatus) => {
+    const token = localStorage.getItem('admin_token');
+    if (selectedIds.length === 0) return;
+
+    try {
+        // We'll update our backend route to handle multiple IDs
+        await axios.put(`http://127.0.0.1:8000/api/applications/bulk-status`, 
+            { ids: selectedIds, status: newStatus },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        alert(`${selectedIds.length} candidatures mises à jour !`);
+        setSelectedIds([]); // Clear selection
+        fetchApplications(); // Refresh list
+    } catch (err) {
+        console.error("Bulk update failed", err);
+    }
+};
    const fetchApplications = () => {
     const token = localStorage.getItem('admin_token');
     
@@ -93,16 +128,21 @@ const [subjectValues, setSubjectValues] = useState({
 });
     
 console.log("Current Selected Student Data:", selectedStudent);
+   // ... (rest of your component above)
+
     return (
         <div className="admin-container">
+            {/* HEADER */}
             <div className="admin-header">
                 <h2>Lycée Charif Idrissi - Administration</h2>
-                <div style={{display: 'flex', gap: '15px', alignItems: 'center'}}>
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
                     <span>{filteredStudents.length} Candidatures</span>
                     <button className="btn-logout" onClick={handleLogout}>Déconnexion</button>
                 </div>
+
             </div>
 
+            {/* SEARCH & FILTERS */}
             <div className="admin-actions">
                 <input 
                     type="text" 
@@ -117,13 +157,38 @@ console.log("Current Selected Student Data:", selectedStudent);
                     <option value="rejected">Refusés</option>
                 </select>
                 <button className="btn-advanced" onClick={() => setShowAdvancedModal(true)}>
-    🔍 Filtres Académiques Avancés
+                    🔍 Filtres Académiques Avancés
+                </button>
+                <button className="btn-primary" onClick={() => navigate('/admin/accepted')}>
+    ✅ Voir les Acceptés
 </button>
             </div>
 
+            {/* BULK TOOLBAR */}
+            {selectedIds.length > 0 && (
+                <div className="bulk-toolbar">
+                    <div className="bulk-info">
+                        <strong>{selectedIds.length}</strong> candidats sélectionnés
+                    </div>
+                    <div className="bulk-actions">
+                        <button className="btn-bulk-accept" onClick={() => handleBulkUpdate('accepted')}>✅ Accepter</button>
+                        <button className="btn-bulk-reject" onClick={() => handleBulkUpdate('rejected')}>❌ Refuser</button>
+                        <button className="btn-bulk-cancel" onClick={() => setSelectedIds([])}>Annuler</button>
+                    </div>
+                </div>
+            )}
+
+            {/* TABLE */}
             <table className="admin-table">
                 <thead>
                     <tr>
+                        <th style={{ width: '40px' }}>
+                            <input 
+                                type="checkbox" 
+                                checked={selectedIds.length === filteredStudents.length && filteredStudents.length > 0} 
+                                onChange={toggleSelectAll} 
+                            />
+                        </th>
                         <th>Candidat</th>
                         <th>Massar</th>
                         <th>Moyenne</th>
@@ -133,7 +198,18 @@ console.log("Current Selected Student Data:", selectedStudent);
                 </thead>
                 <tbody>
                     {filteredStudents.map(student => (
-                        <tr key={student.id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+                        <tr 
+                            key={student.id} 
+                            onClick={() => setSelectedStudent(student)} 
+                            className={`clickable-row ${selectedIds.includes(student.id) ? 'row-selected' : ''}`}
+                        >
+                            <td onClick={(e) => e.stopPropagation()}>
+                                <input 
+                                    type="checkbox" 
+                                    checked={selectedIds.includes(student.id)} 
+                                    onChange={() => toggleSelect(student.id)} 
+                                />
+                            </td>
                             <td><strong>{student.full_name}</strong></td>
                             <td>{student.massar_code}</td>
                             <td className="mean-highlight">{calculateMean(student)}/20</td>
@@ -149,7 +225,7 @@ console.log("Current Selected Student Data:", selectedStudent);
                 </tbody>
             </table>
 
-            {/* --- MODAL FOR DETAILS --- */}
+            {/* MODAL DETAILS */}
             {selectedStudent && (
                 <div className="modal-overlay" onClick={() => setSelectedStudent(null)}>
                     <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -170,65 +246,44 @@ console.log("Current Selected Student Data:", selectedStudent);
                     </div>
                 </div>
             )}
-            {/* --- ADVANCED FILTER MODAL --- */}
-{showAdvancedModal && (
-    <div className="modal-overlay" onClick={() => setShowAdvancedModal(false)}>
-        <div className="modal-content filter-modal" onClick={e => e.stopPropagation()}>
-            <h3>Filtres Académiques Avancés</h3>
-            <p className="modal-subtitle">Ciblez les profils spécifiques</p>
-            
-            <div className="filter-section-main">
-                <label>Moyenne Générale Minimale:</label>
-                <input 
-                    type="number" 
-                    placeholder="ex: 15.5" 
-                    value={minMean} 
-                    onChange={(e) => setMinMean(e.target.value)}
-                    className="full-width-input"
-                />
-            </div>
 
-            <div className="filter-grid-layout">
-                {Object.keys(subjectValues).map(sub => (
-                    <div key={sub} className={`filter-card ${activeSubjects.includes(sub) ? 'active' : ''}`}>
-                        <label className="checkbox-container">
-                            <input 
-                                type="checkbox" 
-                                checked={activeSubjects.includes(sub)}
-                                onChange={() => {
-                                    activeSubjects.includes(sub) 
-                                    ? setActiveSubjects(activeSubjects.filter(s => s !== sub))
-                                    : setActiveSubjects([...activeSubjects, sub])
-                                }}
-                            />
-                            <span className="capitalize">{sub.replace('_', ' ')}</span>
-                        </label>
-                        {activeSubjects.includes(sub) && (
-                            <input 
-                                type="number" 
-                                placeholder="Min" 
-                                value={subjectValues[sub]}
-                                onChange={(e) => setSubjectValues({...subjectValues, [sub]: e.target.value})}
-                                className="inline-input"
-                            />
-                        )}
+            {/* ADVANCED FILTER MODAL */}
+            {showAdvancedModal && (
+                <div className="modal-overlay" onClick={() => setShowAdvancedModal(false)}>
+                    <div className="modal-content filter-modal" onClick={e => e.stopPropagation()}>
+                        <h3>Filtres Académiques Avancés</h3>
+                        <div className="filter-section-main">
+                            <label>Moyenne Générale Minimale:</label>
+                            <input type="number" value={minMean} onChange={(e) => setMinMean(e.target.value)} className="full-width-input" />
+                        </div>
+                        <div className="filter-grid-layout">
+                            {Object.keys(subjectValues).map(sub => (
+                                <div key={sub} className={`filter-card ${activeSubjects.includes(sub) ? 'active' : ''}`}>
+                                    <label className="checkbox-container">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={activeSubjects.includes(sub)}
+                                            onChange={() => activeSubjects.includes(sub) ? setActiveSubjects(activeSubjects.filter(s => s !== sub)) : setActiveSubjects([...activeSubjects, sub])}
+                                        />
+                                        <span className="capitalize">{sub.replace('_', ' ')}</span>
+                                    </label>
+                                    {activeSubjects.includes(sub) && (
+                                        <input type="number" placeholder="Min" value={subjectValues[sub]} onChange={(e) => setSubjectValues({...subjectValues, [sub]: e.target.value})} className="inline-input" />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn-reset" onClick={() => {setActiveSubjects([]); setMinMean('');}}>Réinitialiser</button>
+                            <button className="btn-primary" onClick={() => setShowAdvancedModal(false)}>Voir les résultats</button>
+                        </div>
                     </div>
-                ))}
-            </div>
+                </div>
+            )}
+        </div>
+    ); // Ends return
+}; // Ends AdminDashboard function
 
-            <div className="modal-footer">
-                <button className="btn-reset" onClick={() => {setActiveSubjects([]); setMinMean(''); setSubjectValues({maths:'', physique:'', langue_etrangere:'', langue_secondaire:'', histoire_geo:'', education_islamique:'', sport:''})}}>
-                    Réinitialiser
-                </button>
-                <button className="btn-primary" onClick={() => setShowAdvancedModal(false)}>
-                    Voir les {filteredStudents.length} résultats
-                </button>
-            </div>
-        </div>
-    </div>
-)}
-        </div>
-    );
-};
+
 
 export default AdminDashboard;

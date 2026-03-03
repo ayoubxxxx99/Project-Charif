@@ -93,3 +93,102 @@
 }
 
 .btn-reject:hover { background-color: #c0392b; transform: translateY(-1px); }
+.bulk-toolbar {
+    background: #1e293b; /* Dark Slate */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: fadeInDown 0.3s ease;
+}
+
+.row-selected {
+    background-color: #f0f7ff !important; /* Soft blue highlight */
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-bulk-accept { background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.btn-bulk-reject { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.btn-bulk-cancel { background: transparent; color: #94a3b8; border: 1px solid #475569; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Modal Overlay - Darkens the background */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Modal Box */
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header h3 {
+    margin: 0 0 10px 0;
+    color: #1e293b;
+}
+
+.modal-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Vertical Stacking for inputs */
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between date and time */
+    margin-bottom: 25px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box; /* Crucial for width: 100% */
+}
+
+/* Footer Buttons */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

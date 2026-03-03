@@ -5,32 +5,58 @@ import './ApplicationForm.css';
 
 const ApplicationForm = () => {
     const navigate = useNavigate();
-   const [formData, setFormData] = useState({
-    full_name: '',
-    massar_code: '',
-    maths: '',                
-    physique: '',             
-    langue_etrangere: '',     
-    langue_secondaire: '',    
-    education_islamique: '',  
-    sport: ''                 
-});
+    const [formData, setFormData] = useState({
+        full_name: '',
+        massar_code: '',
+        maths: '',                
+        physique: '',             
+        langue_etrangere: '',     
+        langue_secondaire: '',    
+        histoire_geo: '',  
+        education_islamique: '',  
+        sport: ''                 
+    });
+const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem('admin_token');
+   const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // 1. Get the correct key from your Local Storage
+    const token = localStorage.getItem('admin_token'); 
+    
+    if (!token) {
+        alert("Session introuvable. Veuillez vous reconnecter.");
+        return navigate('/login');
+    }
+
+    setLoading(true);
+
+    try {
+        // 2. The axios call must stay INSIDE the try block
+        await axios.post('http://127.0.0.1:8000/api/applications', formData, {
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json' 
+            }
+        });
         
-        try {
-            await axios.post('http://127.0.0.1:8000/api/applications', formData, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            alert("Candidature envoyée avec succès !");
-            navigate('/');
-        } catch (err) {
-    console.log("Full Error Object:", err.response?.data); // <--- This is your best friend
-    alert("Erreur: " + (err.response?.data?.message || "Vérifiez vos informations"));
-}
-    };
+        alert("Candidature envoyée avec succès !");
+        navigate('/');
+    } catch (err) {
+        console.error("Submission Error:", err.response?.data);
+        
+        // Handle 401 specifically if the token is old/expired
+        if (err.response?.status === 401) {
+            alert("Session expirée. Reconnectez-vous.");
+            navigate('/login');
+        } else {
+            alert("Erreur: " + (err.response?.data?.message || "Vérifiez vos informations"));
+        }
+    } finally {
+        // 3. This ensures the spinner stops whether it succeeds OR fails
+        setLoading(false);
+    }
+};
 
     return (
         <div className="form-container">
@@ -89,7 +115,10 @@ const ApplicationForm = () => {
 
                     <div className="form-footer">
                         <button type="button" className="btn-secondary" onClick={() => navigate('/')}>Annuler</button>
-                        <button type="submit" className="btn-primary">Soumettre mon Dossier</button>
+                        
+                        <button type="submit" className="btn-primary" disabled={loading}>
+    {loading ? "Chargement..." : "Soumettre mon Dossier"}
+</button>
                     </div>
                 </form>
             </div>

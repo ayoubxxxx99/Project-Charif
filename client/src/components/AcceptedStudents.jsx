@@ -1,0 +1,166 @@
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import './AdminDashboard.css';
+
+const AcceptedStudents = () => {
+    const [acceptedList, setAcceptedList] = useState([]);
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [appointmentDate, setAppointmentDate] = useState('');
+    const [appointmentTime, setAppointmentTime] = useState('');
+    const navigate = useNavigate();
+
+    // --- SELECTION LOGIC ---
+    const toggleSelect = (id) => {
+        setSelectedIds(prev => 
+            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.length === acceptedList.length) {
+            setSelectedIds([]);
+        } else {
+            setSelectedIds(acceptedList.map(s => s.id));
+        }
+    };
+
+    const fetchAccepted = () => {
+        const token = localStorage.getItem('admin_token');
+        axios.get('http://127.0.0.1:8000/api/applications', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(res => {
+            const onlyAccepted = res.data.filter(app => app.status === 'accepted');
+            setAcceptedList(onlyAccepted);
+        })
+        .catch(() => navigate('/login'));
+    };
+
+    useEffect(() => {
+        fetchAccepted();
+    }, []);
+
+    const handleSendConvocations = async () => {
+        const token = localStorage.getItem('admin_token');
+        if (!appointmentDate || !appointmentTime) return alert("Choisissez une date et heure !");
+        
+        try {
+            await axios.post('http://127.0.0.1:8000/api/applications/send-convocations', {
+                ids: selectedIds,
+                date: appointmentDate,
+                time: appointmentTime
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            alert("Convocations envoyées par email !");
+            setShowScheduleModal(false);
+            setSelectedIds([]);
+        } catch (err) {
+            console.error("Emailing failed", err);
+        }
+    };
+
+    return (
+        <div className="admin-container">
+            <div className="admin-header">
+                <h2>Candidats Acceptés (À Traiter)</h2>
+                <button className="btn-advanced" onClick={() => navigate('/admin')}>
+                    ⬅ Retour au Dashboard
+                </button>
+            </div>
+
+            {/* ACTION BAR */}
+            <div className="admin-actions">
+                {selectedIds.length > 0 ? (
+                    <button className="btn-primary" onClick={() => setShowScheduleModal(true)}>
+                        📅 Programmer RDV pour {selectedIds.length} candidats
+                    </button>
+                ) : (
+                    <p style={{color: '#666'}}>Sélectionnez des candidats pour envoyer les convocations.</p>
+                )}
+            </div>
+
+            <table className="admin-table">
+                <thead>
+                    <tr>
+                        <th style={{ width: '40px' }}>
+                            <input 
+                                type="checkbox" 
+                                checked={selectedIds.length === acceptedList.length && acceptedList.length > 0}
+                                onChange={toggleSelectAll} 
+                            />
+                        </th>
+                        <th>Candidat</th>
+                        <th>Massar</th>
+                        <th>Moyenne</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {acceptedList.map(student => (
+                        <tr key={student.id} className={selectedIds.includes(student.id) ? 'row-selected' : ''}>
+                            <td>
+                                <input 
+                                    type="checkbox" 
+                                    checked={selectedIds.includes(student.id)} 
+                                    onChange={() => toggleSelect(student.id)} 
+                                />
+                            </td>
+                            <td><strong>{student.full_name}</strong></td>
+                            <td>{student.massar_code}</td>
+                            <td>{student.moyenne}/20</td>
+                            <td>
+                                <button className="btn-bulk-cancel">Inscrire</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            {acceptedList.length === 0 && <p style={{textAlign: 'center', marginTop: '20px'}}>Aucun candidat accepté.</p>}
+
+            {/* MODAL */}
+{showScheduleModal && (
+    <div className="modal-overlay" onClick={() => setShowScheduleModal(false)}>
+        <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+                <h3>Planifier la Convocation</h3>
+                <p>Définissez le rendez-vous pour {selectedIds.length} candidat(s)</p>
+            </div>
+            
+            <div className="modal-body">
+                <div className="input-group">
+                    <label>Date de l'entretien :</label>
+                    <input 
+                        type="date" 
+                        value={appointmentDate} 
+                        onChange={(e) => setAppointmentDate(e.target.value)} 
+                        className="modal-input" 
+                    />
+                </div>
+                
+                <div className="input-group">
+                    <label>Heure de l'entretien :</label>
+                    <input 
+                        type="time" 
+                        value={appointmentTime} 
+                        onChange={(e) => setAppointmentTime(e.target.value)} 
+                        className="modal-input" 
+                    />
+                </div>
+            </div>
+
+            <div className="modal-footer">
+                <button className="btn-secondary" onClick={() => setShowScheduleModal(false)}>Annuler</button>
+                <button className="btn-primary" onClick={handleSendConvocations}>Envoyer Emails & PDF</button>
+            </div>
+        </div>
+    </div>
+)}
+        </div>
+    );
+};
+
+export default AcceptedStudents;

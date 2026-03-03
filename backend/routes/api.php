@@ -16,12 +16,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/applications', [ApplicationController::class, 'store']);
 
     // Admin uses these to manage
-    Route::get('/applications', [ApplicationController::class, 'index']);
+   // --- Protected Routes (Require Token) ---
+Route::middleware('auth:sanctum')->group(function () {
+Route::post('/applications/send-convocations', [ApplicationController::class, 'sendConvocations']);
+    // 1. Specific/Static routes go FIRST
+    Route::put('/applications/bulk-status', [ApplicationController::class, 'bulkUpdateStatus']);
+
+    // 2. Dynamic routes (with {id}) go SECOND
     Route::put('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
 
-    // Get current user info
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+    // ... rest of your routes
+    Route::post('/applications', [ApplicationController::class, 'store']);
+    Route::get('/applications', [ApplicationController::class, 'index']);
+});
 }); ?>
 

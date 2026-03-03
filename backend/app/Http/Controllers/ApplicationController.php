@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-// 1. Imports must go ABOVE the class
 use App\Models\Application;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+
 
 class ApplicationController extends Controller
 {
-    // 2. Do NOT put "use App\Models..." here.
-    // This area is only for the methods (functions).
-
     public function store(Request $request)
-    {
-        $validated = $request->validate([
+{
+    // 1. Validate the form inputs
+    $validated = $request->validate([
         'full_name' => 'required|string|max:255',
-        'massar_code' => 'required|string|unique:applications',
+        'massar_code' => 'required|string|unique:applications,massar_code',
         'maths' => 'required|numeric|between:0,20',
         'physique' => 'required|numeric|between:0,20',
         'langue_etrangere' => 'required|numeric|between:0,20',
@@ -25,24 +25,83 @@ class ApplicationController extends Controller
         'sport' => 'required|numeric|between:0,20',
     ]);
 
-    // Add default status
+    // 2. Automatically inject the email from the logged-in user
+    $validated['email'] = $request->user()->email;
     $validated['status'] = 'pending';
 
+    // 3. Create the record
     $application = Application::create($validated);
 
-    return response()->json($application, 201);
+    return response()->json([
+        'message' => 'Candidature enregistrée !',
+        'data' => $application
+    ], 201);
+}
+    
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:accepted,rejected,pending',
+        ]);
+
+        $application = Application::findOrFail($id);
+        $application->update(['status' => $request->status]);
+
+        return response()->json($application);
     }
 
+    // --- YOUR BULK METHOD ---
+    public function bulkUpdateStatus(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:applications,id',
+            'status' => 'required|in:accepted,rejected,pending',
+        ]);
 
+        Application::whereIn('id', $request->ids)->update([
+            'status' => $request->status
+        ]);
+
+        return response()->json(['message' => 'Applications updated successfully']);
+    }
 
     public function index()
+    {
+        return response()->json(Application::orderBy('created_at', 'desc')->get());
+    }
+
+    public function sendConvocations(Request $request)
 {
-    // Fetch all applications, newest first
-    $applications = Application::orderBy('created_at', 'desc')->get();
+    $request->validate([
+        'ids' => 'required|array',
+        'date' => 'required|date',
+        'time' => 'required'
+    ]);
 
-    return response()->json($applications);
+    // Fetch the selected students
+    $students = Application::whereIn('id', $request->ids)->get();
+
+    foreach ($students as $student) {
+        // 1. Prepare data for the PDF
+        $data = [
+            'name' => $student->full_name,
+            'date' => $request->date,
+            'time' => $request->time,
+        ];
+
+        // 2. Generate PDF
+        $pdf = Pdf::loadView('emails.convocation_pdf', $data);
+
+        // 3. Send Email
+        Mail::send([], [], function ($message) use ($student, $pdf) {
+            $message->to($student->email) // Make sure your DB has an email column!
+                ->subject('Convocation Officielle - Lycée Charif Idrissi')
+                ->html("Bonjour {$student->full_name}, <br><br> Félicitations ! Votre candidature est acceptée. Veuillez trouver votre convocation en pièce jointe.")
+                ->attachData($pdf->output(), "convocation_{$student->massar_code}.pdf");
+        });
+    }
+
+    return response()->json(['message' => 'Convocations envoyées avec succès']);
 }
-
-
-
 }

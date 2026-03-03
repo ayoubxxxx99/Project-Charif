@@ -8,6 +8,7 @@ class Application extends Model
 {
 protected $fillable = [
     'full_name',
+    'email', 
     'massar_code',
     'maths',
     'physique',
@@ -16,6 +17,6 @@ protected $fillable = [
     'histoire_geo',
     'education_islamique',
     'sport',
-    'status' 
+    'status'
 ];
 }
