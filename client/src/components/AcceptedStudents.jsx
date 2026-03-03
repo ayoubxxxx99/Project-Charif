@@ -10,7 +10,11 @@ const AcceptedStudents = () => {
     const [appointmentDate, setAppointmentDate] = useState('');
     const [appointmentTime, setAppointmentTime] = useState('');
     const navigate = useNavigate();
-
+    const timeSlots = [];
+         for (let h = 8; h <= 17; h++) {
+    timeSlots.push(`${h < 10 ? '0' + h : h}:00`);
+    timeSlots.push(`${h < 10 ? '0' + h : h}:30`);
+}
     // --- SELECTION LOGIC ---
     const toggleSelect = (id) => {
         setSelectedIds(prev => 
@@ -124,41 +128,58 @@ const AcceptedStudents = () => {
             {/* MODAL */}
 {showScheduleModal && (
     <div className="modal-overlay" onClick={() => setShowScheduleModal(false)}>
-        <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-                <h3>Planifier la Convocation</h3>
-                <p>Définissez le rendez-vous pour {selectedIds.length} candidat(s)</p>
+        <div className="calendar-modal" onClick={e => e.stopPropagation()}>
+            <div className="calendar-sidebar">
+                <h4>Heures disponibles</h4>
+                <div className="time-grid">
+                    {timeSlots.map(slot => (
+                        <button 
+                            key={slot}
+                            className={`time-slot-btn ${appointmentTime === slot ? 'active' : ''}`}
+                            onClick={() => setAppointmentTime(slot)}
+                        >
+                            {slot}
+                        </button>
+                    ))}
+                </div>
             </div>
-            
-            <div className="modal-body">
-                <div className="input-group">
-                    <label>Date de l'entretien :</label>
+
+            <div className="calendar-main">
+                <div className="calendar-header">
+                    <h3>Choisir la Date</h3>
+                    <p>Candidat(s) sélectionné(s) : <strong>{selectedIds.length}</strong></p>
+                </div>
+                
+                <div className="date-picker-container">
                     <input 
                         type="date" 
                         value={appointmentDate} 
                         onChange={(e) => setAppointmentDate(e.target.value)} 
-                        className="modal-input" 
+                        className="large-date-input"
                     />
                 </div>
-                
-                <div className="input-group">
-                    <label>Heure de l'entretien :</label>
-                    <input 
-                        type="time" 
-                        value={appointmentTime} 
-                        onChange={(e) => setAppointmentTime(e.target.value)} 
-                        className="modal-input" 
-                    />
-                </div>
-            </div>
 
-            <div className="modal-footer">
-                <button className="btn-secondary" onClick={() => setShowScheduleModal(false)}>Annuler</button>
-                <button className="btn-primary" onClick={handleSendConvocations}>Envoyer Emails & PDF</button>
+                <div className="calendar-summary">
+                    {appointmentDate && appointmentTime ? (
+                        <div className="selection-badge">
+                            Rendez-vous le 📅 {appointmentDate} à 🕒 {appointmentTime}
+                        </div>
+                    ) : (
+                        <p className="hint">Veuillez choisir une date et une heure dans la liste.</p>
+                    )}
+                </div>
+
+                <div className="modal-footer">
+                    <button className="btn-secondary" onClick={() => setShowScheduleModal(false)}>Annuler</button>
+                    <button className="btn-primary" onClick={handleSendConvocations} disabled={!appointmentDate || !appointmentTime}>
+                        Confirmer et Envoyer
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 )}
+
         </div>
     );
 };
