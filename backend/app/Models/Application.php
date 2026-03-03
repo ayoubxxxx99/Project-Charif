@@ -9,7 +9,13 @@ class Application extends Model
 protected $fillable = [
     'full_name',
     'massar_code',
-    'last_year_grade',
-    'status'
+    'maths',
+    'physique',
+    'langue_etrangere',
+    'langue_secondaire',
+    'histoire_geo',
+    'education_islamique',
+    'sport',
+    'status' 
 ];
 }

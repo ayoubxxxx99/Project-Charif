@@ -13,22 +13,24 @@ class ApplicationController extends Controller
 
     public function store(Request $request)
     {
-        // 1. Validation
         $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'massar_code' => 'required|string|unique:applications',
-            'last_year_grade' => 'required|numeric|between:0,20',
-        ]);
+        'full_name' => 'required|string|max:255',
+        'massar_code' => 'required|string|unique:applications',
+        'maths' => 'required|numeric|between:0,20',
+        'physique' => 'required|numeric|between:0,20',
+        'langue_etrangere' => 'required|numeric|between:0,20',
+        'langue_secondaire' => 'required|numeric|between:0,20',
+        'histoire_geo' => 'required|numeric|between:0,20',
+        'education_islamique' => 'required|numeric|between:0,20',
+        'sport' => 'required|numeric|between:0,20',
+    ]);
 
-        // 2. Create the record
-        // This now works because Application is imported at the top!
-        $application = Application::create($validated);
+    // Add default status
+    $validated['status'] = 'pending';
 
-        // 3. Return JSON for React
-        return response()->json([
-            'message' => 'Application submitted successfully!',
-            'data' => $application
-        ], 201);
+    $application = Application::create($validated);
+
+    return response()->json($application, 201);
     }
 
 

@@ -1,76 +1,63 @@
-.form-container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 30px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.clickable-row {
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
-h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
-
-form { display: flex; flex-direction: column; gap: 15px; }
-
-input {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
+.clickable-row:hover {
+    background-color: #f8fafc;
 }
 
-input:focus { outline: none; border-color: #3498db; }
-
-button {
-    padding: 12px;
-    background-color: #27ae60; /* School Green */
-    color: white;
-    border: none;
-    border-radius: 6px;
+.mean-highlight {
     font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s;
+    color: #2563eb;
 }
 
-button:hover { background-color: #219150; }
-
-.status-msg { margin-top: 20px; text-align: center; font-weight: bold; } 
-.admin-actions {
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 8px;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-.search-input {
-    flex: 2;
-    padding: 10px 15px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 14px;
-}
-
-.filter-select {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
+.modal-content {
     background: white;
-    cursor: pointer;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
 }
 
-.btn-logout {
-    padding: 8px 15px;
-    background: #ef4444;
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 1.5rem 0;
+}
+
+.modal-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 5px;
+}
+
+.modal-footer {
+    border-top: 2px solid #f1f5f9;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-close {
+    padding: 8px 16px;
+    background: #64748b;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: 500;
-}
-
-.btn-logout:hover {
-    background: #dc2626;
 }

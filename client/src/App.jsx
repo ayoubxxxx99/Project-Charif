@@ -1,24 +1,38 @@
 import { Routes, Route } from 'react-router-dom'
 import ApplicationForm from './components/ApplicationForm'
 import AdminDashboard from './components/AdminDashboard'
-import Login from './components/Login' // <--- 1. Import the Login component
+import Login from './components/Login' 
 import Register from './components/Register';
+import StudentHome from './components/StudentHome';
+import ProtectedRoute from './components/ProtectedRoute';
 function App() {
-  return (
-    <div className="App">
-      <Routes>
-        {/* The "Home" page for students */}
-        <Route path="/" element={<ApplicationForm />} />
+    return (
+        <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-        {/* The "Login" page for the admin */}
-        <Route path="/login" element={<Login />} /> {/* <--- 2. Add the route here */}
-        <Route path="/register" element={<Register />} />
-        {/* The "Admin" page for the school */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        
-      </Routes>
-    </div>
-  )
+            {/* Student Protected Routes */}
+            <Route path="/" element={
+                <ProtectedRoute>
+                    <StudentHome />
+                </ProtectedRoute>
+            } />
+            
+            <Route path="/apply" element={
+                <ProtectedRoute>
+                    <ApplicationForm />
+                </ProtectedRoute>
+            } />
+
+            {/* Admin Protected Routes (Only 'admin' can enter) */}
+            <Route path="/admin" element={
+                <ProtectedRoute requiredRole="admin">
+                    <AdminDashboard />
+                </ProtectedRoute>
+            } />
+        </Routes>
+    );
 }
 
 export default App

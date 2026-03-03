@@ -16,9 +16,11 @@ const Login = () => {
     try {
         const response = await axios.post('http://127.0.0.1:8000/api/login', { email, password });
         
-        // 1. Save Token AND Role
+        // 1. Save Token and Role and name :3
         localStorage.setItem('admin_token', response.data.token);
         localStorage.setItem('user_role', response.data.user.role);
+        localStorage.setItem('user_name', response.data.user.name);
+        
         
         // 2. Redirect based on role
         if (response.data.user.role === 'admin') {
