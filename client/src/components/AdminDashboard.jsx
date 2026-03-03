@@ -9,7 +9,14 @@ const AdminDashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const navigate = useNavigate();
-
+    const [minMean, setMinMean] = useState('');
+const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+const [activeSubjects, setActiveSubjects] = useState([]); // Stores names of subjects being filtered
+const [subjectValues, setSubjectValues] = useState({
+    maths: '', physique: '', langue_etrangere: '', 
+    langue_secondaire: '', histoire_geo: '', 
+    education_islamique: '', sport: ''
+});
    const fetchApplications = () => {
     const token = localStorage.getItem('admin_token');
     
@@ -51,15 +58,15 @@ const AdminDashboard = () => {
     };
 
     const calculateMean = (student) => {
-        const grades = [
-            student.maths, student.physique, student.langue_etrangere,
-            student.langue_secondaire, student.histoire_geo, 
-            student.education_islamique, student.sport
-        ];
-        const total = grades.reduce((sum, grade) => sum + parseFloat(grade || 0), 0);
-        return (total / grades.length).toFixed(2);
-    };
-
+    if (!student) return "0.00"; // Safety check
+    const grades = [
+        student.maths, student.physique, student.langue_etrangere,
+        student.langue_secondaire, student.histoire_geo, 
+        student.education_islamique, student.sport
+    ];
+    const total = grades.reduce((sum, grade) => sum + parseFloat(grade || 0), 0);
+    return (total / grades.length).toFixed(2);
+};
     const handleLogout = () => {
         localStorage.removeItem('admin_token');
         localStorage.removeItem('user_role');
@@ -67,12 +74,25 @@ const AdminDashboard = () => {
     };
 
     const filteredStudents = list.filter(student => {
-        const matchesSearch = student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              student.massar_code.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterStatus === 'all' || student.status === filterStatus;
-        return matchesSearch && matchesFilter;
+    const matchesSearch = student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          student.massar_code.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || student.status === filterStatus;
+    
+    // Mean Filter
+    const studentMean = parseFloat(calculateMean(student));
+    const matchesMean = minMean === '' || studentMean >= parseFloat(minMean);
+
+    // Dynamic Subject Filters: Check only subjects in the activeSubjects array
+    const matchesSubjects = activeSubjects.every(sub => {
+        const threshold = parseFloat(subjectValues[sub]);
+        if (isNaN(threshold)) return true; // If no value set, don't filter out
+        return parseFloat(student[sub]) >= threshold;
     });
 
+    return matchesSearch && matchesStatus && matchesMean && matchesSubjects;
+});
+    
+console.log("Current Selected Student Data:", selectedStudent);
     return (
         <div className="admin-container">
             <div className="admin-header">
@@ -96,6 +116,9 @@ const AdminDashboard = () => {
                     <option value="accepted">Acceptés</option>
                     <option value="rejected">Refusés</option>
                 </select>
+                <button className="btn-advanced" onClick={() => setShowAdvancedModal(true)}>
+    🔍 Filtres Académiques Avancés
+</button>
             </div>
 
             <table className="admin-table">
@@ -147,6 +170,63 @@ const AdminDashboard = () => {
                     </div>
                 </div>
             )}
+            {/* --- ADVANCED FILTER MODAL --- */}
+{showAdvancedModal && (
+    <div className="modal-overlay" onClick={() => setShowAdvancedModal(false)}>
+        <div className="modal-content filter-modal" onClick={e => e.stopPropagation()}>
+            <h3>Filtres Académiques Avancés</h3>
+            <p className="modal-subtitle">Ciblez les profils spécifiques</p>
+            
+            <div className="filter-section-main">
+                <label>Moyenne Générale Minimale:</label>
+                <input 
+                    type="number" 
+                    placeholder="ex: 15.5" 
+                    value={minMean} 
+                    onChange={(e) => setMinMean(e.target.value)}
+                    className="full-width-input"
+                />
+            </div>
+
+            <div className="filter-grid-layout">
+                {Object.keys(subjectValues).map(sub => (
+                    <div key={sub} className={`filter-card ${activeSubjects.includes(sub) ? 'active' : ''}`}>
+                        <label className="checkbox-container">
+                            <input 
+                                type="checkbox" 
+                                checked={activeSubjects.includes(sub)}
+                                onChange={() => {
+                                    activeSubjects.includes(sub) 
+                                    ? setActiveSubjects(activeSubjects.filter(s => s !== sub))
+                                    : setActiveSubjects([...activeSubjects, sub])
+                                }}
+                            />
+                            <span className="capitalize">{sub.replace('_', ' ')}</span>
+                        </label>
+                        {activeSubjects.includes(sub) && (
+                            <input 
+                                type="number" 
+                                placeholder="Min" 
+                                value={subjectValues[sub]}
+                                onChange={(e) => setSubjectValues({...subjectValues, [sub]: e.target.value})}
+                                className="inline-input"
+                            />
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            <div className="modal-footer">
+                <button className="btn-reset" onClick={() => {setActiveSubjects([]); setMinMean(''); setSubjectValues({maths:'', physique:'', langue_etrangere:'', langue_secondaire:'', histoire_geo:'', education_islamique:'', sport:''})}}>
+                    Réinitialiser
+                </button>
+                <button className="btn-primary" onClick={() => setShowAdvancedModal(false)}>
+                    Voir les {filteredStudents.length} résultats
+                </button>
+            </div>
+        </div>
+    </div>
+)}
         </div>
     );
 };

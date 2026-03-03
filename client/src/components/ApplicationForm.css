@@ -1,22 +1,70 @@
+/* AdminDashboard.css */
+.admin-container {
+    padding: 40px;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.admin-actions {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.search-input, .filter-select {
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+}
+
+.admin-table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.admin-table th, .admin-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #f1f5f9;
+}
+
 .clickable-row {
     cursor: pointer;
     transition: background 0.2s;
 }
 
 .clickable-row:hover {
-    background-color: #f8fafc;
+    background-color: #f1f5f9;
 }
 
-.mean-highlight {
-    font-weight: bold;
-    color: #2563eb;
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    text-transform: capitalize;
 }
 
-/* Modal Styles */
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-accepted { background: #dcfce7; color: #166534; }
+.status-rejected { background: #fee2e2; color: #991b1b; }
+
+/* Modal specific styles */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -25,39 +73,99 @@
 
 .modal-content {
     background: white;
-    padding: 2rem;
+    padding: 30px;
     border-radius: 12px;
-    width: 400px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    width: 450px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .modal-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
-    margin: 1.5rem 0;
+    margin: 20px 0;
 }
 
 .modal-item {
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid #f1f5f9;
     padding-bottom: 5px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.filter-modal {
+    width: 600px !important;
 }
 
-.modal-footer {
-    border-top: 2px solid #f1f5f9;
-    padding-top: 1rem;
+.subtitle {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.filter-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.filter-card {
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.filter-card.active {
+    border-color: #2563eb;
+    background-color: #eff6ff;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.inline-input {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+}
+
+.capitalize { text-transform: capitalize; }
+.filter-modal { width: 550px !important; }
+.modal-subtitle { color: #64748b; font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px; }
+.full-width-input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; }
+
+.filter-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-card {
+    border: 1px solid #e2e8f0;
+    padding: 10px;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.btn-close {
-    padding: 8px 16px;
-    background: #64748b;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+.filter-card.active {
+    background-color: #eff6ff;
+    border-color: #2563eb;
 }
+
+.capitalize { text-transform: capitalize; }
+.inline-input { width: 50px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; }
