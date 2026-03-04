@@ -15,7 +15,7 @@ const StudentHome = () => {
         axios.get('http://127.0.0.1:8000/api/user-application', {
             headers: { Authorization: `Bearer ${token}` }
         })
-        .then(res => setApplication(res.data || null))
+        .then(res => setApplication(res.data?.massar_code ? res.data : null))
         .catch(err => { console.error("API Error:", err); setApplication(null); })
         .finally(() => setLoading(false));
     }, [token]);

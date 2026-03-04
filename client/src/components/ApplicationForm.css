@@ -1,274 +1,437 @@
-/* AdminDashboard.css - Final Stabilized Version */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* ============================================================
+   APPLICATION FORM — LCI ADMISSIONS
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
 :root {
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --primary-glow: rgba(37, 99, 235, 0.15);
-    --bg-main: #f8fafc;
-    --white: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --border-color: #e2e8f0;
-    --radius-lg: 16px;
-    --radius-md: 10px;
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --bg-base:        #0c0f14;
+  --bg-surface:     #131720;
+  --bg-elevated:    #1a2030;
+  --bg-hover:       #1f2636;
+  --border:         rgba(255,255,255,0.06);
+  --border-accent:  rgba(255,255,255,0.12);
+
+  --accent:         #4f8ef7;
+  --accent-glow:    rgba(79,142,247,0.25);
+  --accent-dim:     rgba(79,142,247,0.12);
+
+  --danger:         #f87171;
+  --danger-dim:     rgba(248,113,113,0.10);
+  --warning:        #fbbf24;
+  --warning-dim:    rgba(251,191,36,0.10);
+
+  --text-primary:   #f0f4ff;
+  --text-secondary: #8b95a8;
+  --text-muted:     #505a6a;
+
+  --font-display:   'Syne', sans-serif;
+  --font-body:      'DM Sans', sans-serif;
+
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      16px;
+  --radius-xl:      22px;
 }
 
-.admin-page-wrapper {
-    background-color: var(--bg-main);
-    min-height: 100vh;
-    padding: 32px;
-    font-family: 'Inter', sans-serif;
-    color: var(--text-main);
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* --- HEADER --- */
-.admin-main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
+/* ── Page ────────────────────────────────────────────────────── */
+.af-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 60% 40% at 10% 0%, rgba(79,142,247,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 90% 100%, rgba(79,142,247,0.04) 0%, transparent 60%),
+    var(--bg-base);
 }
 
-.brand-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+/* ── Header ──────────────────────────────────────────────────── */
+.af-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(19,23,32,0.85);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.logo-accent {
-    font-weight: 800;
-    color: var(--primary);
-    font-size: 24px;
+.af-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.v-divider {
-    width: 1px;
-    height: 24px;
-    background: var(--border-color);
+.af-brand-acronym {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f8ef7, #82b4ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
 }
 
-/* --- TOOLBAR: FIX FOR OVERLAP --- */
-.admin-toolbar-v2 {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--white);
-    padding: 16px 24px;
-    border-radius: 14px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-    margin-bottom: 24px;
-    gap: 20px;
+.af-brand-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-accent);
 }
 
-.toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex: 1;
-    min-width: 0;
+.af-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-.search-container {
-    position: relative;
-    width: 320px; /* Fixed width prevents search from sliding over select */
-    flex-shrink: 0;
+.af-brand-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-.search-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--primary);
-    pointer-events: none;
+.af-brand-sub {
+  font-size: 11px;
+  color: var(--text-muted);
 }
 
-.modern-search-input {
-    width: 100%;
-    height: 44px;
-    padding: 0 12px 0 42px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: #fcfdfe;
-    outline: none;
-    font-size: 14px;
+.af-btn-back {
+  background: transparent;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.modern-select {
-    height: 44px;
-    width: 180px;
-    padding: 0 12px;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    background: var(--white);
-    cursor: pointer;
-    font-weight: 500;
+.af-btn-back:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
-.toolbar-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+/* ── Main ────────────────────────────────────────────────────── */
+.af-main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
 }
 
-/* --- BUTTONS --- */
-.btn-primary-glow {
-    background: var(--primary);
-    color: white;
-    border: none;
-    height: 44px;
-    padding: 0 20px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
+/* ── Card ────────────────────────────────────────────────────── */
+.af-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.5);
 }
 
-.btn-primary-glow:hover {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
+/* ── Warning banner ──────────────────────────────────────────── */
+.af-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 28px;
+  background: var(--warning-dim);
+  border-bottom: 1px solid rgba(251,191,36,0.12);
 }
 
-.btn-secondary-icon {
-    background: white;
-    border: 1px solid var(--border-color);
-    height: 44px;
-    padding: 0 16px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
+.af-warning-icon {
+  font-size: 16px;
+  color: var(--warning);
+  margin-top: 1px;
+  flex-shrink: 0;
 }
 
-/* --- MODAL: FIX FOR MEAN INPUT OVERFLOW --- */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+.af-warning p {
+  font-size: 13px;
+  color: #b89a30;
+  line-height: 1.6;
 }
 
-.modal-content {
-    background: white;
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 600px;
-    padding: 32px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+.af-warning strong {
+  color: var(--warning);
+  font-weight: 600;
 }
 
-.input-with-icon {
-    display: flex;
-    align-items: center;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0 16px;
-    height: 52px;
-    width: 100%;
-    box-sizing: border-box; /* CRITICAL: Keeps padding inside the width */
+/* ── Section ─────────────────────────────────────────────────── */
+.af-section {
+  padding: 32px 28px;
 }
 
-.input-with-icon input {
-    border: none;
-    flex: 1;
-    height: 100%;
-    outline: none;
-    font-weight: 700;
-    font-size: 18px;
-    min-width: 0; /* Allows input to shrink within container */
+.af-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
-.unit-label {
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-left: 10px;
-    white-space: nowrap;
+.af-section-num {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid rgba(79,142,247,0.2);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
 }
 
-/* --- TABLE STYLES --- */
-.table-wrapper-modern {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    overflow: hidden;
+.af-section-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
 }
 
-.admin-table {
-    width: 100%;
-    border-collapse: collapse;
+.af-section-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: auto;
+  font-style: italic;
 }
 
-.admin-table th {
-    background: #f8fafc;
-    padding: 16px 24px;
-    text-align: left;
-    font-size: 12px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    font-weight: 700;
-    border-bottom: 1px solid var(--border-color);
+/* Divider */
+.af-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0 28px;
 }
 
-.modern-row td {
-    padding: 18px 24px;
-    border-bottom: 1px solid #f1f5f9;
+/* ── Personal grid ───────────────────────────────────────────── */
+.af-personal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
-.modern-row:hover {
-    background: #f8fafc;
+.af-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
 }
 
-/* --- STATUS TAGS --- */
-.status-tag {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    display: inline-block;
+.af-label {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-.tag-accepted { background: #dcfce7; color: #15803d; }
-.tag-pending { background: #fef3c7; color: #b45309; }
-.tag-rejected { background: #fee2e2; color: #b91c1c; }
-
-/* --- SUBJECT GRID --- */
-.subjects-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-top: 16px;
+.af-input {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 12px 16px;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
 }
 
-.subject-filter-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+.af-input::placeholder { color: var(--text-muted); }
+
+.af-input:focus {
+  border-color: rgba(79,142,247,0.45);
+  background: #1e2535;
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-.mini-grade-input {
-    width: 60px;
-    height: 32px;
-    text-align: center;
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
+.af-mono { font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
+
+/* ── Grades grid ─────────────────────────────────────────────── */
+.af-grades-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.af-grade-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.af-grade-card:hover {
+  border-color: rgba(79,142,247,0.2);
+}
+
+.af-grade-card:focus-within {
+  border-color: rgba(79,142,247,0.4);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.af-grade-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.af-grade-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.af-grade-input {
+  flex: 1;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  padding: 8px 12px;
+  outline: none;
+  transition: all 0.2s ease;
+  text-align: center;
+  /* Hide number spinners */
+  -moz-appearance: textfield;
+}
+
+.af-grade-input::-webkit-outer-spin-button,
+.af-grade-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.af-grade-input::placeholder { color: var(--text-muted); font-size: 14px; font-weight: 400; }
+
+.af-grade-input:focus {
+  border-color: rgba(79,142,247,0.5);
+  background: var(--bg-elevated);
+}
+
+.af-grade-unit {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Error ───────────────────────────────────────────────────── */
+.af-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--danger-dim);
+  border: 1px solid rgba(248,113,113,0.2);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--danger);
+  margin: 0 28px 8px;
+  overflow: hidden;
+}
+
+/* ── Form footer ─────────────────────────────────────────────── */
+.af-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px 28px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.af-btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.af-btn-cancel:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.af-btn-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #3b74e0, #4f8ef7);
+  border: 1px solid rgba(79,142,247,0.4);
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 11px 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(79,142,247,0.3);
+  min-width: 200px;
+}
+
+.af-btn-submit:hover:not(:disabled) {
+  box-shadow: 0 6px 28px rgba(79,142,247,0.45);
+}
+
+.af-btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.af-btn-arrow {
+  font-size: 16px;
+  transition: transform 0.2s ease;
+}
+
+.af-btn-submit:hover .af-btn-arrow { transform: translateX(3px); }
+
+.af-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: af-spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+@keyframes af-spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .af-header { padding: 16px 20px; }
+  .af-main { padding: 24px 16px 60px; }
+  .af-section { padding: 24px 20px; }
+  .af-divider { margin: 0 20px; }
+  .af-personal-grid { grid-template-columns: 1fr; }
+  .af-grades-grid { grid-template-columns: repeat(2, 1fr); }
+  .af-form-footer { padding: 16px 20px; flex-direction: column; }
+  .af-btn-cancel, .af-btn-submit { width: 100%; justify-content: center; }
+  .af-error { margin: 0 20px 8px; }
 }
