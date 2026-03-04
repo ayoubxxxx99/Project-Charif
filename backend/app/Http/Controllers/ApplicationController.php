@@ -12,7 +12,6 @@ class ApplicationController extends Controller
 {
    public function store(Request $request)
 {
-    // 1. Validate inputs
     $validated = $request->validate([
         'full_name' => 'required|string|max:255',
         'massar_code' => 'required|string|unique:applications,massar_code',
@@ -25,13 +24,10 @@ class ApplicationController extends Controller
         'sport' => 'required|numeric|between:0,20',
     ]);
 
-    // 2. IMPORTANT: Link the application to the logged-in user
-    // Make sure 'user_id' is in the $fillable array of your Application Model!
     $validated['user_id'] = $request->user()->id;
     $validated['email'] = $request->user()->email;
     $validated['status'] = 'pending';
 
-    // 3. Create the record
     $application = Application::create($validated);
 
     return response()->json([
@@ -42,13 +38,9 @@ class ApplicationController extends Controller
 
 public function getUserApplication(Request $request)
 {
-    // Get the authenticated student via Sanctum
     $user = $request->user();
-
-    // Find application by user_id
     $application = Application::where('user_id', $user->id)->first();
 
-    // If no application, return null (200 OK) so React shows the form
     if (!$application) {
         return response()->json(null, 200);
     }
@@ -68,7 +60,6 @@ public function getUserApplication(Request $request)
         return response()->json($application);
     }
 
-    // --- YOUR BULK METHOD ---
     public function bulkUpdateStatus(Request $request)
     {
         $request->validate([
@@ -97,27 +88,25 @@ public function getUserApplication(Request $request)
         'time' => 'required'
     ]);
 
-    // Fetch the selected students
     $students = Application::whereIn('id', $request->ids)->get();
 
     foreach ($students as $student) {
-        // 1. Prepare data for the PDF
         $data = [
             'name' => $student->full_name,
             'date' => $request->date,
             'time' => $request->time,
         ];
 
-        // 2. Generate PDF
         $pdf = Pdf::loadView('emails.convocation_pdf', $data);
 
-        // 3. Send Email
         Mail::send([], [], function ($message) use ($student, $pdf) {
-            $message->to($student->email) // Make sure your DB has an email column!
+            $message->to($student->email)
                 ->subject('Convocation Officielle - Lycée Charif Idrissi')
                 ->html("Bonjour {$student->full_name}, <br><br> Félicitations ! Votre candidature est acceptée. Veuillez trouver votre convocation en pièce jointe.")
                 ->attachData($pdf->output(), "convocation_{$student->massar_code}.pdf");
         });
+
+        sleep(1); // Respects Mailtrap free tier: 1 email/second limit
     }
 
     return response()->json(['message' => 'Convocations envoyées avec succès']);

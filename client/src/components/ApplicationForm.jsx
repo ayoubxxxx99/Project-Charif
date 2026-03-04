@@ -21,8 +21,8 @@ const [loading, setLoading] = useState(false);
    const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // 1. Get the correct key from your Local Storage
-    const token = localStorage.getItem('admin_token'); 
+    // Use the standardized key 'token'
+    const token = localStorage.getItem('token'); 
     
     if (!token) {
         alert("Session introuvable. Veuillez vous reconnecter.");
@@ -32,7 +32,6 @@ const [loading, setLoading] = useState(false);
     setLoading(true);
 
     try {
-        // 2. The axios call must stay INSIDE the try block
         await axios.post('http://127.0.0.1:8000/api/applications', formData, {
             headers: { 
                 Authorization: `Bearer ${token}`,
@@ -41,11 +40,10 @@ const [loading, setLoading] = useState(false);
         });
         
         alert("Candidature envoyée avec succès !");
-        navigate('/');
+        navigate('/'); // Redirect to StudentHome to see the "Pending" status
     } catch (err) {
         console.error("Submission Error:", err.response?.data);
         
-        // Handle 401 specifically if the token is old/expired
         if (err.response?.status === 401) {
             alert("Session expirée. Reconnectez-vous.");
             navigate('/login');
@@ -53,10 +51,10 @@ const [loading, setLoading] = useState(false);
             alert("Erreur: " + (err.response?.data?.message || "Vérifiez vos informations"));
         }
     } finally {
-        // 3. This ensures the spinner stops whether it succeeds OR fails
         setLoading(false);
     }
 };
+
 
     return (
         <div className="form-container">

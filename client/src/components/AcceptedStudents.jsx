@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './AdminDashboard.css';
+import { motion, AnimatePresence } from 'framer-motion';
+import './AcceptedStudents.css';
 
 const AcceptedStudents = () => {
     const [acceptedList, setAcceptedList] = useState([]);
@@ -9,178 +10,329 @@ const AcceptedStudents = () => {
     const [showScheduleModal, setShowScheduleModal] = useState(false);
     const [appointmentDate, setAppointmentDate] = useState('');
     const [appointmentTime, setAppointmentTime] = useState('');
+    const [sent, setSent] = useState(false);
     const navigate = useNavigate();
+
+    const calculateMean = (student) => {
+        const grades = [
+            student.maths, student.physique, student.langue_etrangere,
+            student.langue_secondaire, student.histoire_geo,
+            student.education_islamique, student.sport
+        ];
+        const total = grades.reduce((sum, g) => sum + parseFloat(g || 0), 0);
+        return (total / grades.length).toFixed(2);
+    };
+
     const timeSlots = [];
-         for (let h = 8; h <= 17; h++) {
-    timeSlots.push(`${h < 10 ? '0' + h : h}:00`);
-    timeSlots.push(`${h < 10 ? '0' + h : h}:30`);
-}
-    // --- SELECTION LOGIC ---
+    for (let h = 8; h <= 17; h++) {
+        timeSlots.push(`${h < 10 ? '0' + h : h}:00`);
+        timeSlots.push(`${h < 10 ? '0' + h : h}:30`);
+    }
+
     const toggleSelect = (id) => {
-        setSelectedIds(prev => 
+        setSelectedIds(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
         );
     };
 
     const toggleSelectAll = () => {
-        if (selectedIds.length === acceptedList.length) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(acceptedList.map(s => s.id));
-        }
+        setSelectedIds(selectedIds.length === acceptedList.length ? [] : acceptedList.map(s => s.id));
     };
 
     const fetchAccepted = () => {
-        const token = localStorage.getItem('admin_token');
+        const token = localStorage.getItem('token');
         axios.get('http://127.0.0.1:8000/api/applications', {
             headers: { Authorization: `Bearer ${token}` }
         })
-        .then(res => {
-            const onlyAccepted = res.data.filter(app => app.status === 'accepted');
-            setAcceptedList(onlyAccepted);
-        })
+        .then(res => setAcceptedList(res.data.filter(app => app.status === 'accepted')))
         .catch(() => navigate('/login'));
     };
 
-    useEffect(() => {
-        fetchAccepted();
-    }, []);
+    useEffect(() => { fetchAccepted(); }, []);
 
     const handleSendConvocations = async () => {
-        const token = localStorage.getItem('admin_token');
-        if (!appointmentDate || !appointmentTime) return alert("Choisissez une date et heure !");
-        
+        const token = localStorage.getItem('token');
+        if (!appointmentDate || !appointmentTime) return;
         try {
             await axios.post('http://127.0.0.1:8000/api/applications/send-convocations', {
                 ids: selectedIds,
                 date: appointmentDate,
                 time: appointmentTime
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            alert("Convocations envoyées par email !");
-            setShowScheduleModal(false);
-            setSelectedIds([]);
+            }, { headers: { Authorization: `Bearer ${token}` } });
+            setSent(true);
+            setTimeout(() => {
+                setShowScheduleModal(false);
+                setSelectedIds([]);
+                setSent(false);
+                setAppointmentDate('');
+                setAppointmentTime('');
+            }, 1800);
         } catch (err) {
             console.error("Emailing failed", err);
         }
     };
 
+    const modalVariants = {
+        hidden: { opacity: 0, scale: 0.96, y: 24 },
+        visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 26 } },
+        exit: { opacity: 0, scale: 0.96, y: 24, transition: { duration: 0.2 } }
+    };
+
+    const overlayVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+        exit: { opacity: 0 }
+    };
+
     return (
-        <div className="admin-container">
-            <div className="admin-header">
-                <h2>Candidats Acceptés (À Traiter)</h2>
-                <button className="btn-advanced" onClick={() => navigate('/admin')}>
-                    ⬅ Retour au Dashboard
-                </button>
-            </div>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="accepted-page-wrapper">
+            <div className="accepted-container">
 
-            {/* ACTION BAR */}
-            <div className="admin-actions">
-                {selectedIds.length > 0 ? (
-                    <button className="btn-primary" onClick={() => setShowScheduleModal(true)}>
-                        📅 Programmer RDV pour {selectedIds.length} candidats
-                    </button>
-                ) : (
-                    <p style={{color: '#666'}}>Sélectionnez des candidats pour envoyer les convocations.</p>
-                )}
-            </div>
-
-            <table className="admin-table">
-                <thead>
-                    <tr>
-                        <th style={{ width: '40px' }}>
-                            <input 
-                                type="checkbox" 
-                                checked={selectedIds.length === acceptedList.length && acceptedList.length > 0}
-                                onChange={toggleSelectAll} 
-                            />
-                        </th>
-                        <th>Candidat</th>
-                        <th>Massar</th>
-                        <th>Moyenne</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {acceptedList.map(student => (
-                        <tr key={student.id} className={selectedIds.includes(student.id) ? 'row-selected' : ''}>
-                            <td>
-                                <input 
-                                    type="checkbox" 
-                                    checked={selectedIds.includes(student.id)} 
-                                    onChange={() => toggleSelect(student.id)} 
-                                />
-                            </td>
-                            <td><strong>{student.full_name}</strong></td>
-                            <td>{student.massar_code}</td>
-                            <td>{student.moyenne}/20</td>
-                            <td>
-                                <button className="btn-bulk-cancel">Inscrire</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-
-            {acceptedList.length === 0 && <p style={{textAlign: 'center', marginTop: '20px'}}>Aucun candidat accepté.</p>}
-
-            {/* MODAL */}
-{showScheduleModal && (
-    <div className="modal-overlay" onClick={() => setShowScheduleModal(false)}>
-        <div className="calendar-modal" onClick={e => e.stopPropagation()}>
-            <div className="calendar-sidebar">
-                <h4>Heures disponibles</h4>
-                <div className="time-grid">
-                    {timeSlots.map(slot => (
-                        <button 
-                            key={slot}
-                            className={`time-slot-btn ${appointmentTime === slot ? 'active' : ''}`}
-                            onClick={() => setAppointmentTime(slot)}
-                        >
-                            {slot}
+                {/* ── HEADER ── */}
+                <header className="accepted-header">
+                    <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="accepted-brand">
+                        <button className="btn-back" onClick={() => navigate('/admin')}>
+                            <span>←</span> Dashboard
                         </button>
-                    ))}
-                </div>
-            </div>
+                        <div className="v-divider" />
+                        <div className="header-title-block">
+                            <h1>Candidats Acceptés</h1>
+                            <span className="accepted-count-badge">{acceptedList.length} dossiers</span>
+                        </div>
+                    </motion.div>
 
-            <div className="calendar-main">
-                <div className="calendar-header">
-                    <h3>Choisir la Date</h3>
-                    <p>Candidat(s) sélectionné(s) : <strong>{selectedIds.length}</strong></p>
-                </div>
-                
-                <div className="date-picker-container">
-                    <input 
-                        type="date" 
-                        value={appointmentDate} 
-                        onChange={(e) => setAppointmentDate(e.target.value)} 
-                        className="large-date-input"
-                    />
-                </div>
+                    <AnimatePresence>
+                        {selectedIds.length > 0 && (
+                            <motion.button
+                                className="btn-convocation"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                onClick={() => setShowScheduleModal(true)}
+                            >
+                                <span className="btn-icon">📅</span>
+                                Programmer RDV
+                                <span className="btn-badge">{selectedIds.length}</span>
+                            </motion.button>
+                        )}
+                    </AnimatePresence>
+                </header>
 
-                <div className="calendar-summary">
-                    {appointmentDate && appointmentTime ? (
-                        <div className="selection-badge">
-                            Rendez-vous le 📅 {appointmentDate} à 🕒 {appointmentTime}
+                {/* ── STATS BAR ── */}
+                <motion.div
+                    className="stats-bar"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                >
+                    <div className="stat-chip">
+                        <span className="stat-dot dot-green" />
+                        <span className="stat-label">Total acceptés</span>
+                        <strong className="stat-value">{acceptedList.length}</strong>
+                    </div>
+                    <div className="stat-chip">
+                        <span className="stat-dot dot-blue" />
+                        <span className="stat-label">Sélectionnés</span>
+                        <strong className="stat-value">{selectedIds.length}</strong>
+                    </div>
+                    <div className="stat-chip">
+                        <span className="stat-dot dot-amber" />
+                        <span className="stat-label">En attente de convocation</span>
+                        <strong className="stat-value">{acceptedList.length - selectedIds.length}</strong>
+                    </div>
+                </motion.div>
+
+                {/* ── TABLE ── */}
+                <motion.div
+                    className="accepted-table-wrapper"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                >
+                    {acceptedList.length === 0 ? (
+                        <div className="empty-state">
+                            <div className="empty-icon">🎓</div>
+                            <p>Aucun candidat accepté pour le moment.</p>
                         </div>
                     ) : (
-                        <p className="hint">Veuillez choisir une date et une heure dans la liste.</p>
+                        <table className="accepted-table">
+                            <thead>
+                                <tr>
+                                    <th width="48">
+                                        <input
+                                            type="checkbox"
+                                            className="modern-checkbox"
+                                            checked={selectedIds.length === acceptedList.length && acceptedList.length > 0}
+                                            onChange={toggleSelectAll}
+                                        />
+                                    </th>
+                                    <th>Candidat</th>
+                                    <th>Code Massar</th>
+                                    <th>Moyenne</th>
+                                    <th className="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <AnimatePresence>
+                                    {acceptedList.map((student, index) => (
+                                        <motion.tr
+                                            key={student.id}
+                                            className={`accepted-row ${selectedIds.includes(student.id) ? 'row-selected' : ''}`}
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            transition={{ delay: index * 0.04 }}
+                                        >
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    className="modern-checkbox"
+                                                    checked={selectedIds.includes(student.id)}
+                                                    onChange={() => toggleSelect(student.id)}
+                                                />
+                                            </td>
+                                            <td>
+                                                <div className="student-cell">
+                                                    <div className="student-avatar">
+                                                        {student.full_name.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <span className="student-name">{student.full_name}</span>
+                                                </div>
+                                            </td>
+                                            <td><span className="massar-badge">{student.massar_code}</span></td>
+                                            <td>
+                                                <div className="moyenne-cell">
+                                                    <span className="moyenne-value">{calculateMean(student)}</span>
+                                                    <span className="moyenne-denom">/20</span>
+                                                    <div className="moyenne-bar">
+                                                        <div
+                                                            className="moyenne-fill"
+                                                            style={{ width: `${(calculateMean(student) / 20) * 100}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="text-right">
+                                                <button className="btn-inscrire">
+                                                    Inscrire →
+                                                </button>
+                                            </td>
+                                        </motion.tr>
+                                    ))}
+                                </AnimatePresence>
+                            </tbody>
+                        </table>
                     )}
-                </div>
+                </motion.div>
 
-                <div className="modal-footer">
-                    <button className="btn-secondary" onClick={() => setShowScheduleModal(false)}>Annuler</button>
-                    <button className="btn-primary" onClick={handleSendConvocations} disabled={!appointmentDate || !appointmentTime}>
-                        Confirmer et Envoyer
-                    </button>
-                </div>
+                {/* ── SCHEDULE MODAL ── */}
+                <AnimatePresence>
+                    {showScheduleModal && (
+                        <motion.div
+                            variants={overlayVariants}
+                            initial="hidden" animate="visible" exit="exit"
+                            className="modal-overlay"
+                            onClick={() => setShowScheduleModal(false)}
+                        >
+                            <motion.div
+                                variants={modalVariants}
+                                className="schedule-modal"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                {sent ? (
+                                    <motion.div
+                                        className="sent-success"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                    >
+                                        <div className="success-icon">✓</div>
+                                        <h3>Convocations envoyées !</h3>
+                                        <p>{selectedIds.length} email{selectedIds.length > 1 ? 's' : ''} envoyé{selectedIds.length > 1 ? 's' : ''} avec succès.</p>
+                                    </motion.div>
+                                ) : (
+                                    <>
+                                        {/* Left — time slots */}
+                                        <div className="modal-sidebar">
+                                            <p className="sidebar-title">Heure du RDV</p>
+                                            <div className="time-grid">
+                                                {timeSlots.map(slot => (
+                                                    <button
+                                                        key={slot}
+                                                        className={`time-slot-btn ${appointmentTime === slot ? 'active' : ''}`}
+                                                        onClick={() => setAppointmentTime(slot)}
+                                                    >
+                                                        {slot}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Right — date + confirm */}
+                                        <div className="modal-main">
+                                            <div className="modal-main-header">
+                                                <h3>Programmer les Convocations</h3>
+                                                <p className="modal-subtitle">
+                                                    <span className="pill-count">{selectedIds.length}</span>
+                                                    candidat{selectedIds.length > 1 ? 's' : ''} sélectionné{selectedIds.length > 1 ? 's' : ''}
+                                                </p>
+                                            </div>
+
+                                            <div className="date-section">
+                                                <label className="field-label">Date du rendez-vous</label>
+                                                <input
+                                                    type="date"
+                                                    value={appointmentDate}
+                                                    onChange={(e) => setAppointmentDate(e.target.value)}
+                                                    className="date-input"
+                                                />
+                                            </div>
+
+                                            <AnimatePresence>
+                                                {appointmentDate && appointmentTime && (
+                                                    <motion.div
+                                                        className="summary-card"
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0 }}
+                                                    >
+                                                        <div className="summary-row">
+                                                            <span>📅 Date</span>
+                                                            <strong>{appointmentDate}</strong>
+                                                        </div>
+                                                        <div className="summary-row">
+                                                            <span>🕒 Heure</span>
+                                                            <strong>{appointmentTime}</strong>
+                                                        </div>
+                                                        <div className="summary-row">
+                                                            <span>👥 Candidats</span>
+                                                            <strong>{selectedIds.length}</strong>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+
+                                            <div className="modal-footer">
+                                                <button className="btn-cancel" onClick={() => setShowScheduleModal(false)}>
+                                                    Annuler
+                                                </button>
+                                                <button
+                                                    className="btn-confirm"
+                                                    onClick={handleSendConvocations}
+                                                    disabled={!appointmentDate || !appointmentTime}
+                                                >
+                                                    Confirmer & Envoyer
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
             </div>
-        </div>
-    </div>
-)}
-
-        </div>
+        </motion.div>
     );
 };
 
