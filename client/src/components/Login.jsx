@@ -56,6 +56,8 @@ const Login = () => {
                         <span className="brand-acronym">LCI</span>
                         <div className="brand-divider" />
                         <span className="brand-year">EST. 1987</span>
+
+                   
                     </div>
 
                     <div className="left-content">
@@ -66,6 +68,19 @@ const Login = () => {
                         <p className="left-subtitle">
                             Lycée Charif Idrissi — Tétouan
                         </p>
+                             {/* ── MAP ── */}
+<div className="map-corner">
+    <iframe
+        title="Lycée Charif Idrissi"
+        src="https://www.google.com/maps?q=35.5692388,-5.361656&z=16&output=embed"
+        width="100%"
+        height="100%"
+        style={{ border: 0 }}
+        allowFullScreen=""
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+    />
+</div>
                     </div>
 
                     <div className="left-footer">
