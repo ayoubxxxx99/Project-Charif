@@ -4,6 +4,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 
 // --- Public Routes ---
 Route::post('/register', [AuthController::class, 'register']);
@@ -11,7 +12,8 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // --- Protected Routes (Require Token) ---
 Route::middleware('auth:sanctum')->group(function () {
-
+Route::get('/profile', [ProfileController::class, 'show']);
+Route::post('/profile', [ProfileController::class, 'update']);
     // --- Student Specific ---
     Route::get('/user-application', [ApplicationController::class, 'getUserApplication']);
     Route::post('/applications', [ApplicationController::class, 'store']);

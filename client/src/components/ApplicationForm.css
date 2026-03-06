@@ -435,3 +435,15 @@ body {
   .af-btn-cancel, .af-btn-submit { width: 100%; justify-content: center; }
   .af-error { margin: 0 20px 8px; }
 }
+.af-input-error {
+    border-color: rgba(248, 113, 113, 0.6) !important;
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1);
+}
+
+.af-field-error {
+    display: block;
+    font-size: 11.5px;
+    color: #f87171;
+    margin-top: 5px;
+    padding-left: 2px;
+}

@@ -14,12 +14,23 @@ const ApplicationForm = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [massarError, setMassarError] = useState('');
 
     const update = (field) => (e) => setFormData({ ...formData, [field]: e.target.value });
+
+    const validateMassar = (value) => {
+        if (!value) { setMassarError(''); return; }
+        const valid = /^[A-Za-z]\d{9}$/.test(value);
+        setMassarError(valid ? '' : 'Format invalide — ex: J123456789 (1 lettre + 9 chiffres)');
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+        if (!/^[A-Za-z]\d{9}$/.test(formData.massar_code)) {
+            setMassarError('Format invalide — ex: J123456789 (1 lettre + 9 chiffres)');
+            return;
+        }
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
         setLoading(true);
@@ -89,7 +100,29 @@ const ApplicationForm = () => {
                                 </div>
                                 <div className="af-field-group">
                                     <label className="af-label">Code Massar</label>
-                                    <input type="text" className="af-input af-mono" placeholder="Ex: J123456789" onChange={update('massar_code')} required />
+                                    <input
+                                        type="text"
+                                        className={`af-input af-mono ${massarError ? 'af-input-error' : ''}`}
+                                        placeholder="Ex: J123456789"
+                                        maxLength={10}
+                                        onChange={e => {
+                                            update('massar_code')(e);
+                                            validateMassar(e.target.value);
+                                        }}
+                                        required
+                                    />
+                                    <AnimatePresence>
+                                        {massarError && (
+                                            <motion.span
+                                                className="af-field-error"
+                                                initial={{ opacity: 0, y: -4 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -4 }}
+                                            >
+                                                {massarError}
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
                         </section>
