@@ -62,8 +62,8 @@ const Login = () => {
 
                     <div className="left-content">
                         <h1 className="left-title">
-                            Système<br />
-                            d'Admission
+                       Admission <br />
+                          Charif Idrissi  
                         </h1>
                         <p className="left-subtitle">
                             Lycée Charif Idrissi — Tétouan
@@ -109,7 +109,7 @@ const Login = () => {
                         <div className="form-header">
                             <div className="form-eyebrow">Portail sécurisé</div>
                             <h2 className="form-title">Connexion</h2>
-                            <p className="form-desc">Accédez à votre espace de gestion</p>
+                            <p className="form-desc">Accédez à votre espace de postulation</p>
                         </div>
 
                         <AnimatePresence>

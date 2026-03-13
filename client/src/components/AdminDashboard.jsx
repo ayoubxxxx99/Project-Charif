@@ -53,7 +53,7 @@ const AdminDashboard = () => {
         } catch (err) { console.error(err); }
     };
 
-    // Bulk status update: single request to the dedicated bulk-status endpoint
+    
     const handleBulkStatusUpdate = async (newStatus) => {
         try {
             await axios.put('http://127.0.0.1:8000/api/applications/bulk-status',
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
         return matchesSearch && matchesStatus && matchesMean && matchesSubjects;
     });
 
-    // --- Animation Variants ---
+   
     const modalVariants = {
         hidden: { opacity: 0, scale: 0.95, y: 20 },
         visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } },
@@ -167,7 +167,7 @@ const AdminDashboard = () => {
                             <span className="icon">✅</span> Candidats Acceptés
                         </button>
 
-                        {/* Bulk actions — only appear when rows are selected */}
+                        
                         <AnimatePresence>
                             {selectedIds.length > 0 && (
                                 <motion.div

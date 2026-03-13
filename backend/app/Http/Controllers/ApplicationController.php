@@ -106,7 +106,7 @@ public function getUserApplication(Request $request)
                 ->attachData($pdf->output(), "convocation_{$student->massar_code}.pdf");
         });
 
-        sleep(1); // Respects Mailtrap free tier: 1 email/second limit
+        sleep(1);
     }
 
     return response()->json(['message' => 'Convocations envoyées avec succès']);

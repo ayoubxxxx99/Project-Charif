@@ -18,23 +18,22 @@ class AuthController extends Controller
 
     $user = User::where('email', $request->email)->first();
 
-    // 1. Check if user exists and password is correct
+
     if (! $user || ! Hash::check($request->password, $user->password)) {
         throw ValidationException::withMessages([
             'email' => ['Les identifiants sont incorrects.'],
         ]);
     }
 
-    // 2. If we reach this line, the login is successful!
-    // Create a Secret Token for this session
+
     $token = $user->createToken('auth-token')->plainTextToken;
 
-    // 3. Return the token and the specific user data (including role)
+
     return response()->json([
         'token' => $token,
         'user' => [
             'name' => $user->name,
-            'role' => $user->role, // This allows React to know if it's an admin or student
+            'role' => $user->role, //
             'email' => $user->email
         ]
     ]);
@@ -45,7 +44,7 @@ class AuthController extends Controller
     $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
-        'password' => 'required|string|min:8|confirmed', // 'confirmed' looks for password_confirmation
+        'password' => 'required|string|min:8|confirmed',
     ]);
 
     $user = \App\Models\User::create([
@@ -53,7 +52,7 @@ class AuthController extends Controller
         'email' => $request->email,
         'password' => \Illuminate\Support\Facades\Hash::make($request->password),
         'role' => 'student',
-        // We add a role to distinguish from Admin
+       
     ]);
 
     $token = $user->createToken('auth_token')->plainTextToken;

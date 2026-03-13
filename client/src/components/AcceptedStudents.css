@@ -681,12 +681,12 @@ body {
   color: var(--text-muted);
 }
 
-/* ── Scrollbar ───────────────────────────────────────────────── */
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 3px; }
 
-/* ── Responsive ──────────────────────────────────────────────── */
+
 @media (max-width: 640px) {
   .accepted-container { padding: 0 16px 40px; }
   .schedule-modal { flex-direction: column; max-width: 100%; }
