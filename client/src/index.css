@@ -1,0 +1,22 @@
+/* ============================================================
+   INDEX.CSS — LCI ADMISSIONS
+   Reset global — remplace le fichier Vite par défaut
+   ============================================================ */
+
+/* On importe les variables globales une seule fois ici.
+   Chaque page n'a donc plus besoin de faire @import './variables.css'
+   — supprimer ces imports dans Login.css, Register.css, etc.      */
+@import './variables.css';
+
+/* Reset liens — neutre, sans couleur Vite */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Reset boutons — on repart de zéro, chaque page définit ses propres styles */
+button {
+  all: unset;
+  cursor: pointer;
+  box-sizing: border-box;
+}

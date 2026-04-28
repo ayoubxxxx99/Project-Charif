@@ -1,0 +1,110 @@
+{
+  "brand": {
+    "name": "Lycée Charif Idrissi",
+    "subtitle": "Portail de Candidature"
+  },
+  "left_title_1": "Admission",
+  "left_title_2": "Charif Idrissi",
+  "left_subtitle": "Lycée Charif Idrissi — Tétouan",
+  "stat_year": "Année scolaire",
+  "stat_ville": "Tétouan",
+  "stat_location": "Tétouan, Maroc",
+  "form_eyebrow": "Portail sécurisé",
+  "form_title": "Connexion",
+  "form_desc": "Accédez à votre espace de postulation",
+  "email_label": "Adresse email",
+  "password_label": "Mot de passe",
+  "btn_login": "S'identifier",
+  "no_account": "Pas encore de compte ?",
+  "register_link": "S'inscrire",
+  "error_login": "Identifiants incorrects.",
+  "reg_left_title": "Rejoignez l'excellence",
+  "reg_left_subtitle": "Créez votre compte pour commencer votre processus d'admission.",
+  "reg_step_1": "Infos personnelles",
+  "reg_step_2": "Parcours",
+  "reg_step_3": "Validation",
+  "reg_form_title": "Inscription",
+  "reg_form_desc": "Remplissez le formulaire pour créer votre espace",
+  "name_label": "Nom complet",
+  "confirm_password_label": "Confirmer le mot de passe",
+  "btn_register": "Créer mon compte",
+  "already_have_account": "Déjà inscrit ?",
+  "login_link": "Se connecter",
+  "nav": {
+    "edit_profile_tooltip": "Profil mis à jour !",
+    "logout": "Déconnexion"
+  },
+  "profile": {
+    "my_account": "Mon Compte",
+    "title": "Profil Étudiant",
+    "edit_avatar": "Modifier la photo",
+    "personal_info": "Informations Personnelles",
+    "full_name": "Nom Complet",
+    "address": "Adresse",
+    "address_placeholder": "Votre adresse complète",
+    "dob": "Date de naissance",
+    "guardian_section": "Informations du Tuteur",
+    "guardian_name": "Nom du tuteur",
+    "guardian_phone": "Téléphone du tuteur",
+    "success_msg": "Modifications enregistrées !",
+    "cancel_btn": "Annuler",
+    "save_btn": "Soumettre mon Dossier",
+    "success_msg_save": "Profil mis à jour !",
+    "edit": "Modifier",
+    "name_placeholder":"Ex:Mohammed Alami"
+  },
+  "dashboard": {
+    "massar_code": "Code Massar",
+    "submitted_on": "Soumis le",
+    "gpa": "Moyenne Générale",
+    "download_btn": "Télécharger le reçu",
+    "support_btn": "Besoin d'aide ?",
+    "grades_title": "Relevé de Notes"
+  },
+  "subjects": {
+    "maths": "Mathématiques",
+    "physics": "Physique-Chimie",
+    "first_lang": "Français — 1ère Langue",
+    "second_lang": "Anglais — 2ème Langue",
+    "history_geo": "Histoire-Géographie",
+    "islamic_edu": "Éducation Islamique",
+    "sport": "Sport"
+  },
+  "status": {
+    "accepted": {
+      "label": "Accepté",
+      "title": "Félicitations !",
+      "message": "Votre candidature a été retenue pour l'inscription."
+    },
+    "rejected": {
+      "label": "Refusé",
+      "title": "Désolé",
+      "message": "Votre candidature n'a pas été retenue pour cette session."
+    },
+    "pending": {
+      "label": "En cours",
+      "title": "Dossier en étude",
+      "message": "Votre demande est en cours de traitement par l'administration."
+    }
+  },
+  "empty": {
+    "title": "Aucune candidature",
+    "desc": "Vous n'avez pas encore soumis de dossier de candidature.",
+    "action_btn": "Postuler maintenant"
+  },
+  "common": {
+    "warning": "Attention",
+    "out_of_20": "Saisir sur 20 points",
+    "back": "Retour"
+  },
+  "placeholders": {
+    "full_name": "Ex: Mohammed Alami",
+    "massar": "Ex: J123456789"
+  },
+  "reg_form_desc_warning": "Veuillez vérifier scrupuleusement vos notes. Toute fausse déclaration entraînera le rejet automatique de votre dossier.",
+  "errors": {
+    "massar_format": "Format invalide — ex: J123456789 (1 lettre + 9 chiffres)",
+    "generic_error": "Vérifiez vos informations et réessayez."
+    
+  }
+}

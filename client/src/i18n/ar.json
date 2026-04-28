@@ -1,0 +1,112 @@
+{
+  "brand": {
+    "name": "ثانوية الشريف الإدريسي",
+    "subtitle": "بوابة الترشيح"
+  },
+  "left_title_1": "تسجيل",
+  "left_title_2": "الشريف الإدريسي",
+  "left_subtitle": "ثانوية الشريف الإدريسي — تطوان",
+  "stat_year": "السنة الدراسية",
+  "stat_ville": "تطوان",
+  "stat_location": "تطوان، المغرب",
+  "form_eyebrow": "بوابة آمنة",
+  "form_title": "تسجيل الدخول",
+  "form_desc": "الدخول إلى فضاء الترشيح الخاص بك",
+  "email_label": "البريد الإلكتروني",
+  "password_label": "كلمة المرور",
+  "btn_login": "تسجيل الدخول",
+  "no_account": "ليس لديك حساب؟",
+  "register_link": "إنشاء حساب",
+  "error_login": "بيانات الاعتماد غير صحيحة.",
+  "reg_left_title": "انضم إلى التميز",
+  "reg_left_subtitle": "أنشئ حسابك لبدء عملية القبول.",
+  "reg_step_1": "المعلومات الشخصية",
+  "reg_step_2": "المسار الدراسي",
+  "reg_step_3": "التأكيد",
+  "reg_form_title": "التسجيل",
+  "reg_form_desc": "املأ الاستمارة لإنشاء فضائك",
+  "name_label": "الاسم الكامل",
+  "confirm_password_label": "تأكيد كلمة المرور",
+  "btn_register": "إنشاء حسابي",
+  "already_have_account": "مسجل بالفعل؟",
+  "login_link": "تسجيل الدخول",
+  "nav": {
+    "edit_profile_tooltip": "تم تحديث الملف الشخصي!",
+    "logout": "تسجيل الخروج"
+  },
+  "profile": {
+    "my_account": "حسابي",
+    "title": "ملف الطالب",
+    "edit_avatar": "تغيير الصورة",
+    "personal_info": "المعلومات الشخصية",
+    "full_name": "الاسم الكامل",
+    "address": "العنوان",
+    "address_placeholder": "عنوانك الكامل",
+    "dob": "تاريخ الازدياد",
+    "guardian_section": "معلومات الولي",
+    "guardian_name": "اسم الولي",
+    "guardian_phone": "هاتف الولي",
+    "success_msg": "تم حفظ التغييرات!",
+    "cancel_btn": "إلغاء",
+    "save_btn": "إرسال ملفي",
+    "success_msg_save": "تم تحديث الملف الشخصي!",
+    "edit": "تعديل",
+    "name_placeholder":"مثلا: محمد العلمي"
+  },
+  "dashboard": {
+    "massar_code": "رمز مسار",
+    "submitted_on": "تم الإرسال في",
+    "gpa": "المعدل العام",
+    "download_btn": "تحميل الوصل",
+    "support_btn": "تحتاج مساعدة؟",
+    "grades_title": "بيان النقط"
+  },
+  "subjects": {
+    "maths": "الرياضيات",
+    "physics": "الفيزياء والكيمياء",
+    "first_lang": "الفرنسية — اللغة الأولى",
+    "second_lang": "الإنجليزية — اللغة الثانية",
+    "history_geo": "التاريخ والجغرافيا",
+    "islamic_edu": "التربية الإسلامية",
+    "sport": "الرياضة"
+  },
+  "status": {
+    "accepted": {
+      "label": "مقبول",
+      "title": "تهانينا!",
+      "message": "تم قبول ترشيحك للتسجيل."
+    },
+    "rejected": {
+      "label": "مرفوض",
+      "title": "نعتذر",
+      "message": "لم يتم قبول ترشيحك لهذه الدورة."
+    },
+    "pending": {
+      "label": "في طور المعالجة",
+      "title": "الملف قيد الدراسة",
+      "message": "طلبك قيد المعالجة من طرف الإدارة."
+    }
+  },
+  "empty": {
+    "title": "لا يوجد أي ترشيح",
+    "desc": "لم تقم بتقديم أي ملف ترشيح بعد.",
+    "action_btn": "قدم الآن"
+  },
+  "common": {
+    "warning": "تنبيه",
+    "out_of_20": "الإدخال على 20 نقطة",
+    "back": "عودة"
+  
+  },
+  "placeholders": {
+    "full_name": "مثال: محمد العلمي",
+    "massar": "مثال: J123456789"
+  },
+  "reg_form_desc_warning": "يرجى التحقق من نقاطك بعناية. أي تصريح كاذب سيؤدي إلى الرفض التلقائي لملفك.",
+  "errors": {
+    "massar_format": "صيغة غير صالحة — مثال: J123456789 (حرف واحد + 9 أرقام)",
+    "generic_error": "تحقق من معلوماتك وأعد المحاولة."
+  }
+}
+
+
