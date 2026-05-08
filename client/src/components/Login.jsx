@@ -39,7 +39,7 @@ const Login = () => {
             }
         } catch (err) {
             console.error("Login Error:", err);
-            setError(t('error_login'));
+             setError(t('error_login'));
             setLoading(false);
         }
     };

@@ -22,6 +22,7 @@ const AdminDashboard = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState('');
+    const [draftChanges, setDraftChanges] = useState({});
     const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
@@ -45,28 +46,26 @@ const AdminDashboard = () => {
         fetchApplications();
     }, []);
 
-    const handleStatusUpdate = async (id, newStatus) => {
-        if (!isEditing) return;
-        try {
-            await axios.put(`http://127.0.0.1:8000/api/applications/${id}/status`, 
-                { status: newStatus },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            fetchApplications();
-            setSelectedStudent(null);
-        } catch (err) { console.error(err); }
+    const getDisplayStatus = (student) => {
+        if (draftChanges[student.id] !== undefined) {
+            return draftChanges[student.id];
+        }
+        return student.status;
     };
 
-    const handleBulkStatusUpdate = async (newStatus) => {
+    const handleStatusUpdate = (id, newStatus) => {
         if (!isEditing) return;
-        try {
-            await axios.put('http://127.0.0.1:8000/api/applications/bulk-status',
-                { ids: selectedIds, status: newStatus },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            setSelectedIds([]);
-            fetchApplications();
-        } catch (err) { console.error(err); }
+        setDraftChanges(prev => ({ ...prev, [id]: newStatus }));
+        setSelectedStudent(null);
+    };
+
+    const handleBulkStatusUpdate = (newStatus) => {
+        if (!isEditing) return;
+        const updates = {};
+        selectedIds.forEach(id => {
+            updates[id] = newStatus;
+        });
+        setDraftChanges(prev => ({ ...prev, ...updates }));
     };
 
     const handleLogout = () => {
@@ -103,7 +102,7 @@ const AdminDashboard = () => {
     const filteredStudents = list.filter(student => {
         const matchesSearch = student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               student.massar_code.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = filterStatus === 'all' || student.status === filterStatus;
+        const matchesStatus = filterStatus === 'all' || getDisplayStatus(student) === filterStatus;
         const studentMean = parseFloat(calculateMean(student));
         const matchesMean = minMean === '' || studentMean >= parseFloat(minMean);
 
@@ -121,6 +120,7 @@ const AdminDashboard = () => {
     const handleEdit = () => {
         setIsEditing(true);
         setSaveMessage('');
+        setDraftChanges({});
     };
 
     const handleCancel = () => {
@@ -128,19 +128,26 @@ const AdminDashboard = () => {
         setSelectedIds([]);
         setTopCount(0);
         setSaveMessage('');
+        setDraftChanges({});
         fetchApplications();
     };
 
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            if (selectedIds.length > 0) {
-                await axios.put('http://127.0.0.1:8000/api/applications/bulk-status',
-                    { ids: selectedIds, status: 'accepted' },
-                    { headers: { Authorization: `Bearer ${token}` } }
+            const changes = Object.entries(draftChanges);
+            if (changes.length > 0) {
+                await Promise.all(
+                    changes.map(([id, status]) =>
+                        axios.put(`http://127.0.0.1:8000/api/applications/${id}/status`,
+                            { status },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        )
+                    )
                 );
             }
             setSaveMessage('Enregistré');
+            setDraftChanges({});
             setSelectedIds([]);
             setTopCount(0);
             setTimeout(() => {
@@ -153,6 +160,16 @@ const AdminDashboard = () => {
             console.error(err);
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    // ── Label lisible pour le statut ──
+    const getStatusLabel = (status) => {
+        switch (status) {
+            case 'accepted': return 'Accepté';
+            case 'rejected': return 'Refusé';
+            case 'pending':  return 'En attente';
+            default:         return status;
         }
     };
 
@@ -238,7 +255,6 @@ const AdminDashboard = () => {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     className="edit-mode-toolbar"
                                 >
-                                    {/* Sélection + flèches + Accepter/Refuser */}
                                     <div className="selection-group-inline">
                                         <span className="selection-label-inline">📋 Sélection</span>
                                         <div className="stepper-frame mini-stepper">
@@ -264,9 +280,7 @@ const AdminDashboard = () => {
                                                         selectTopX(newValue);
                                                     }} 
                                                     className="arrow-up"
-                                                >
-                                                    ▲
-                                                </button>
+                                                >▲</button>
                                                 <button 
                                                     onClick={() => {
                                                         const current = parseInt(topCount) || 0;
@@ -280,9 +294,7 @@ const AdminDashboard = () => {
                                                         }
                                                     }} 
                                                     className="arrow-down"
-                                                >
-                                                    ▼
-                                                </button>
+                                                >▼</button>
                                             </div>
                                         </div>
 
@@ -325,6 +337,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
+                {/* ── TABLE ── */}
                 <div className="table-wrapper-modern">
                     <table className="admin-table">
                         <thead>
@@ -342,63 +355,82 @@ const AdminDashboard = () => {
                                 <th>Code Massar</th>
                                 <th>Moyenne</th>
                                 <th>Statut</th>
+                                {/* ── NOUVELLE COLONNE EMAIL ── */}
+                                <th>État Email</th>
                                 <th className="text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <AnimatePresence>
-                                {filteredStudents.map((student, index) => (
-                                    <motion.tr key={student.id} 
-                                        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, x: -20 }} transition={{ delay: index * 0.03 }}
-                                        className={`modern-row ${selectedIds.includes(student.id) ? 'row-selected' : ''} ${!isEditing ? 'row-readonly' : ''}`}
-                                        onClick={() => isEditing && setSelectedStudent(student)}
-                                    >
-                                        <td onClick={(e) => e.stopPropagation()}>
-                                            <input 
-                                                type="checkbox" 
-                                                className="modern-checkbox" 
-                                                checked={selectedIds.includes(student.id)} 
-                                                onChange={() => toggleSelect(student.id)} 
-                                                disabled={!isEditing}
-                                            />
-                                        </td>
-                                        <td className="student-name-cell">
-                                            <div className="student-cell">
-                                                <div className="student-avatar">{student.full_name.charAt(0)}</div>
-                                                <span>{student.full_name}</span>
-                                            </div>
-                                        </td>
-                                        <td><span className="massar-badge">{student.massar_code}</span></td>
-                                        <td><span className="mean-text">{calculateMean(student)}</span> <small className="text-muted">/ 20</small></td>
-                                        <td><span className={`status-tag tag-${student.status}`}>{student.status}</span></td>
-                                        <td className="text-right" onClick={(e) => e.stopPropagation()}>
-                                            <div className="action-btns-group">
-                                                <button 
-                                                    className={`action-btn accept ${!isEditing ? 'disabled' : ''}`} 
-                                                    title={isEditing ? "Accepter" : "Activez le mode édition"}
-                                                    onClick={() => handleStatusUpdate(student.id, 'accepted')}
+                                {filteredStudents.map((student, index) => {
+                                    const displayStatus = getDisplayStatus(student);
+                                    const isDraftChanged = draftChanges[student.id] !== undefined;
+
+                                    return (
+                                        <motion.tr key={student.id} 
+                                            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, x: -20 }} transition={{ delay: index * 0.03 }}
+                                            className={`modern-row ${selectedIds.includes(student.id) ? 'row-selected' : ''} ${!isEditing ? 'row-readonly' : ''} ${isDraftChanged ? 'row-draft' : ''}`}
+                                            onClick={() => isEditing && setSelectedStudent(student)}
+                                        >
+                                            <td onClick={(e) => e.stopPropagation()}>
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="modern-checkbox" 
+                                                    checked={selectedIds.includes(student.id)} 
+                                                    onChange={() => toggleSelect(student.id)} 
                                                     disabled={!isEditing}
-                                                >
-                                                    ✓
-                                                </button>
-                                                <button 
-                                                    className={`action-btn reject ${!isEditing ? 'disabled' : ''}`} 
-                                                    title={isEditing ? "Refuser" : "Activez le mode édition"}
-                                                    onClick={() => handleStatusUpdate(student.id, 'rejected')}
-                                                    disabled={!isEditing}
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </motion.tr>
-                                ))}
+                                                />
+                                            </td>
+                                            <td className="student-name-cell">
+                                                <div className="student-cell">
+                                                    <div className="student-avatar">{student.full_name.charAt(0)}</div>
+                                                    <span>{student.full_name}</span>
+                                                </div>
+                                            </td>
+                                            <td><span className="massar-badge">{student.massar_code}</span></td>
+                                            <td>
+                                                <span className="mean-text">{calculateMean(student)}</span>{' '}
+                                                <small className="text-muted">/ 20</small>
+                                            </td>
+                                            <td>
+                                                <span className={`status-tag tag-${displayStatus} ${isDraftChanged ? 'tag-draft' : ''}`}>
+                                                    {getStatusLabel(displayStatus)}
+                                                    {isDraftChanged && <span className="draft-indicator">*</span>}
+                                                </span>
+                                            </td>
+                                            {/* ── ÉTAT EMAIL ── */}
+                                            <td>
+                                                {student.convocation_sent
+                                                    ? <span className="email-sent-badge">✅ Envoyé</span>
+                                                    : <span className="email-pending-badge">⏳ En attente</span>
+                                                }
+                                            </td>
+                                            <td className="text-right" onClick={(e) => e.stopPropagation()}>
+                                                <div className="action-btns-group">
+                                                    <button 
+                                                        className={`action-btn accept ${!isEditing ? 'disabled' : ''}`} 
+                                                        title={isEditing ? "Accepter" : "Activez le mode édition"}
+                                                        onClick={() => handleStatusUpdate(student.id, 'accepted')}
+                                                        disabled={!isEditing}
+                                                    >✓</button>
+                                                    <button 
+                                                        className={`action-btn reject ${!isEditing ? 'disabled' : ''}`} 
+                                                        title={isEditing ? "Refuser" : "Activez le mode édition"}
+                                                        onClick={() => handleStatusUpdate(student.id, 'rejected')}
+                                                        disabled={!isEditing}
+                                                    >✕</button>
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    );
+                                })}
                             </AnimatePresence>
                         </tbody>
                     </table>
                 </div>
 
+                {/* ── MODAL FILTRES AVANCÉS ── */}
                 <AnimatePresence>
                     {showAdvancedModal && (
                         <motion.div variants={overlayVariants} initial="hidden" animate="visible" exit="exit" className="modal-overlay" onClick={() => setShowAdvancedModal(false)}>
@@ -439,6 +471,7 @@ const AdminDashboard = () => {
                     )}
                 </AnimatePresence>
 
+                {/* ── MODAL PROFIL ÉTUDIANT ── */}
                 <AnimatePresence>
                     {selectedStudent && (
                         <motion.div variants={overlayVariants} initial="hidden" animate="visible" exit="exit" className="modal-overlay" onClick={() => setSelectedStudent(null)}>
@@ -448,24 +481,59 @@ const AdminDashboard = () => {
                                         <h3>{selectedStudent.full_name}</h3>
                                         <span className="massar-badge">{selectedStudent.massar_code}</span>
                                     </div>
-                                    <span className={`status-tag tag-${selectedStudent.status}`}>{selectedStudent.status}</span>
+                                    {/* Statut lisible dans le modal */}
+                                    <span className={`status-tag tag-${getDisplayStatus(selectedStudent)}`}>
+                                        {getStatusLabel(getDisplayStatus(selectedStudent))}
+                                    </span>
                                 </div>
+
+                                {/* ── ÉTAT EMAIL dans le modal ── */}
+                                <div className="profile-email-status">
+                                    <span className="profile-email-label">État de la convocation :</span>
+                                    {selectedStudent.convocation_sent
+                                        ? <span className="email-sent-badge">✅ Email envoyé</span>
+                                        : <span className="email-pending-badge">⏳ En attente d'envoi</span>
+                                    }
+                                </div>
+
                                 <div className="profile-body">
                                     <h4 className="section-title">Relevé de notes</h4>
                                     <div className="grades-grid">
                                         {Object.keys(subjectValues).map(sub => (
                                             <div className="grade-card" key={sub}>
                                                 <span className="grade-label">{sub.replace('_', ' ')}</span>
-                                                <strong className="grade-value">{selectedStudent[sub]} <span className="text-muted">/20</span></strong>
+                                                <strong className="grade-value">
+                                                    {selectedStudent[sub]} <span className="text-muted">/20</span>
+                                                </strong>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
+
                                 <div className="modal-footer-modern profile-footer">
                                     <div className="final-score">
                                         <span>Moyenne Générale</span>
-                                        <strong className="primary-text">{calculateMean(selectedStudent)} <small>/ 20</small></strong>
+                                        <strong className="primary-text">
+                                            {calculateMean(selectedStudent)} <small>/ 20</small>
+                                        </strong>
                                     </div>
+                                    {/* Boutons d'action dans le modal aussi */}
+                                    {isEditing && (
+                                        <div className="modal-action-btns">
+                                            <button
+                                                className="btn-modal-accept"
+                                                onClick={() => handleStatusUpdate(selectedStudent.id, 'accepted')}
+                                            >✓ Accepter</button>
+                                            <button
+                                                className="btn-modal-reject"
+                                                onClick={() => handleStatusUpdate(selectedStudent.id, 'rejected')}
+                                            >✕ Refuser</button>
+                                            <button
+                                                className="btn-modal-pending"
+                                                onClick={() => handleStatusUpdate(selectedStudent.id, 'pending')}
+                                            >◑ En attente</button>
+                                        </div>
+                                    )}
                                     <button className="btn-close-modern" onClick={() => setSelectedStudent(null)}>Fermer</button>
                                 </div>
                             </motion.div>

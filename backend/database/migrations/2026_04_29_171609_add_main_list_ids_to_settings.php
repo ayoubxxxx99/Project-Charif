@@ -1,15 +1,12 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Ajoute la nouvelle clé avec un tableau vide JSON
         DB::table('settings')->insert([
             'key' => 'main_list_ids',
             'value' => json_encode([]),

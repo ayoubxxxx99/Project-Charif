@@ -105,10 +105,10 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: var(--success-dim);
-  border: 1px solid rgba(52, 211, 153, 0.3);
+  background: var(--accent-dim);
+  border: 1px solid rgba(13, 148, 136, 0.3);
   border-radius: var(--radius-md);
-  color: var(--success);
+  color: var(--accent);
   font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
@@ -1066,7 +1066,104 @@
   background: var(--bg-hover);
   color: var(--text-primary);
 }
-
+.email-sent-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    white-space: nowrap;
+}
+ 
+.email-pending-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.22);
+    white-space: nowrap;
+}
+ 
+/* ── État email dans le modal profil ── */
+.profile-email-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+ 
+.profile-email-label {
+    font-size: 0.78rem;
+    color: var(--text-muted, #9ca3af);
+    font-weight: 500;
+}
+ 
+/* ── Boutons Accepter / Refuser / Pending dans le modal ── */
+.modal-action-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+ 
+.btn-modal-accept {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-modal-accept:hover {
+    background: rgba(16, 185, 129, 0.28);
+}
+ 
+.btn-modal-reject {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-modal-reject:hover {
+    background: rgba(239, 68, 68, 0.25);
+}
+ 
+.btn-modal-pending {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-modal-pending:hover {
+    background: rgba(245, 158, 11, 0.22);
+}
+.row-draft { background: rgba(251, 191, 36, 0.05) !important; }
+.tag-draft { border-style: dashed !important; opacity: 0.85; }
+.draft-indicator { margin-left: 4px; color: var(--warning); font-weight: 700; }
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .admin-container { padding: 0 16px 40px; }

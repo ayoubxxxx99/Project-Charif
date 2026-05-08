@@ -59,7 +59,8 @@
     "gpa": "المعدل العام",
     "download_btn": "تحميل الوصل",
     "support_btn": "تحتاج مساعدة؟",
-    "grades_title": "بيان النقط"
+    "grades_title": "بيان النقط",
+    "support":"اتصل بالدعم"
   },
   "subjects": {
     "maths": "الرياضيات",

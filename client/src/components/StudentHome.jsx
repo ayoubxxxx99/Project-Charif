@@ -89,7 +89,6 @@ const ProfileDrawer = ({ open, onClose, token }) => {
                         exit={{ x: '100%' }}
                         transition={{ type: 'spring', stiffness: 300, damping: 32 }}
                     >
-                        {/* Header */}
                         <div className="drawer-header">
                             <div>
                                 <div className="drawer-eyebrow">{t('profile.my_account')}</div>
@@ -99,7 +98,6 @@ const ProfileDrawer = ({ open, onClose, token }) => {
                         </div>
 
                         <div className="drawer-body">
-                            {/* Avatar */}
                             <div className="drawer-avatar-section">
                                 <div className="drawer-avatar-wrap" onClick={() => fileRef.current.click()}>
                                     {avatarPreview
@@ -183,7 +181,6 @@ const ProfileDrawer = ({ open, onClose, token }) => {
                             </div>
                         </div>
 
-                        {/* Footer */}
                         <div className="drawer-footer">
                             <AnimatePresence>
                                 {saved && !isEditing && (
@@ -233,16 +230,53 @@ const StudentHome = () => {
     const [application, setApplication] = useState(null);
     const [loading, setLoading] = useState(true);
     const [drawerOpen, setDrawerOpen] = useState(false);
+    
+    // 🔥 NOUVEAUX STATES pour rang et liste principale
+    const [studentRank, setStudentRank] = useState(null);
+    const [mainListInfo, setMainListInfo] = useState({ isMain: false, mainListIds: [] });
+    
     const token = localStorage.getItem('token');
 
+    // 🔥 REMPLACÉ : Récupère aussi le classement et la liste principale
     useEffect(() => {
         if (!token) { setLoading(false); return; }
-        axios.get('http://127.0.0.1:8000/api/user-application', {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        .then(res => setApplication(res.data?.massar_code ? res.data : null))
-        .catch(err => { console.error("API Error:", err); setApplication(null); })
-        .finally(() => setLoading(false));
+        
+        const fetchData = async () => {
+            try {
+                const appRes = await axios.get('http://127.0.0.1:8000/api/user-application', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const appData = appRes.data?.massar_code ? appRes.data : null;
+                setApplication(appData);
+
+                if (appData && appData.status === 'accepted') {
+                    const [settingsRes, allAppsRes] = await Promise.all([
+                        axios.get('http://127.0.0.1:8000/api/settings/main-list-count', {
+                            headers: { Authorization: `Bearer ${token}` }
+                        }),
+                        axios.get('http://127.0.0.1:8000/api/applications', {
+                            headers: { Authorization: `Bearer ${token}` }
+                        })
+                    ]);
+
+                    const mainListIds = settingsRes.data.main_list_ids || [];
+                    setMainListInfo({ isMain: mainListIds.includes(appData.id), mainListIds });
+
+                    const acceptedApps = allAppsRes.data
+                        .filter(a => a.status === 'accepted')
+                        .sort((a, b) => calculateMean(b) - calculateMean(a));
+                    
+                    const rank = acceptedApps.findIndex(a => a.id === appData.id) + 1;
+                    setStudentRank(rank ? { rank, total: acceptedApps.length } : null);
+                }
+            } catch (err) {
+                console.error("API Error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, [token]);
 
     const handleLogout = () => {
@@ -251,14 +285,14 @@ const StudentHome = () => {
     };
 
     const calculateMean = (app) => {
-        if (!app) return '0.00';
+        if (!app) return 0;
         const grades = [
             app.maths, app.physique, app.langue_etrangere,
             app.langue_secondaire, app.histoire_geo,
             app.education_islamique, app.sport
         ];
         const total = grades.reduce((sum, g) => sum + parseFloat(g || 0), 0);
-        return (total / grades.length).toFixed(2);
+        return (total / grades.length);
     };
 
     const subjects = [
@@ -271,28 +305,76 @@ const StudentHome = () => {
         { key: 'sport',              label: t('subjects.sport') },
     ];
 
-    const statusConfig = {
-        accepted: {
-            label:   t('status.accepted.label'),
-            color:   'green',
-            icon:    '✓',
-            title:   t('status.accepted.title'),
-            message: t('status.accepted.message'),
-        },
-        rejected: {
-            label:   t('status.rejected.label'),
-            color:   'red',
-            icon:    '✕',
-            title:   t('status.rejected.title'),
-            message: t('status.rejected.message'),
-        },
-        pending: {
-            label:   t('status.pending.label'),
-            color:   'amber',
-            icon:    '◑',
-            title:   t('status.pending.title'),
+    // 🔥 REMPLACÉ : Configuration des statuts avec sous-catégories pour accepted
+    const getStatusConfig = (app) => {
+        if (!app) return null;
+
+        if (app.status === 'pending') {
+            return {
+                label: t('status.pending.label'),
+                color: 'amber',
+                icon: '◑',
+                title: t('status.pending.title'),
+                message: t('status.pending.message'),
+                showDownload: false,
+            };
+        }
+
+        if (app.status === 'rejected') {
+            return {
+                label: t('status.rejected.label'),
+                color: 'red',
+                icon: '✕',
+                title: t('status.rejected.title'),
+                message: t('status.rejected.message'),
+                showDownload: false,
+            };
+        }
+
+        if (app.status === 'accepted') {
+            const isMain = mainListInfo.isMain;
+            const convocationSent = app.convocation_sent;
+
+            if (convocationSent) {
+                return {
+                    label: 'Convocation Envoyée',
+                    color: 'blue',
+                    icon: '📧',
+                    title: 'Votre convocation a été envoyée !',
+                    message: `Vérifiez votre boîte email (${app.email || ''}). Si vous ne trouvez rien, vérifiez vos spams ou courriers indésirables.`,
+                    showDownload: true,
+                };
+            }
+
+            if (isMain) {
+                return {
+                    label: 'Présélectionné - Liste Principale',
+                    color: 'green',
+                    icon: '✓',
+                    title: 'Félicitations ! Vous êtes présélectionné.',
+                    message: 'Vous faites partie de la liste principale. Vous recevrez votre convocation par email dans les prochains jours.',
+                    showDownload: false,
+                };
+            }
+
+            return {
+                label: 'Présélectionné - Liste d\'Attente',
+                color: 'orange',
+                icon: '⏳',
+                title: 'Vous êtes en liste d\'attente.',
+                message: 'Vous serez contacté par email si une place se libère en liste principale.',
+                showDownload: false,
+            };
+        }
+
+        return {
+            label: t('status.pending.label'),
+            color: 'amber',
+            icon: '◑',
+            title: t('status.pending.title'),
             message: t('status.pending.message'),
-        },
+            showDownload: false,
+        };
     };
 
     if (loading) return (
@@ -302,7 +384,7 @@ const StudentHome = () => {
     );
 
     const userName = application?.full_name || localStorage.getItem('user_name') || t('common.student_fallback');
-    const cfg = application ? (statusConfig[application.status] ?? statusConfig['pending']) : null;
+    const cfg = getStatusConfig(application);
 
     return (
         <>
@@ -375,10 +457,18 @@ const StudentHome = () => {
                                                 {cfg.label}
                                             </span>
                                         </div>
+                                        
+                                        {/* 🔥 MODIFIÉ : Rang au-dessus du titre, message clair */}
                                         <div className="sh-status-body">
+                                            {application.status === 'accepted' && studentRank && (
+                                                <p className="sh-rank-text">
+                                                    Rang de candidature : <strong>#{studentRank.rank}</strong> sur {studentRank.total}
+                                                </p>
+                                            )}
                                             <h2 className="sh-status-title">{cfg.title}</h2>
                                             <p className="sh-status-msg">{cfg.message}</p>
                                         </div>
+                                        
                                         <div className="sh-meta-grid">
                                             <div className="sh-meta-item">
                                                 <span className="sh-meta-label">{t('dashboard.massar_code')}</span>
@@ -394,14 +484,20 @@ const StudentHome = () => {
                                             </div>
                                             <div className="sh-meta-item">
                                                 <span className="sh-meta-label">{t('dashboard.gpa')}</span>
-                                                <strong className="sh-meta-value sh-accent">{calculateMean(application)} / 20</strong>
+                                                <strong className="sh-meta-value sh-accent">{calculateMean(application).toFixed(2)} / 20</strong>
                                             </div>
                                         </div>
+                                        
+                                        {/* 🔥 MODIFIÉ : Bouton conditionnel */}
                                         <div className="sh-status-footer">
-                                            {application.status === 'accepted' ? (
-                                                <button className="sh-btn-primary">📥 {t('dashboard.download_btn')}</button>
+                                            {cfg.showDownload ? (
+                                                <button className="sh-btn-primary">📥 Télécharger la convocation</button>
+                                            ) : application?.status === 'rejected' ? (
+                                                <button className="sh-btn-secondary" disabled>{t('dashboard.support')}</button>
                                             ) : (
-                                                <button className="sh-btn-secondary">{t('dashboard.support_btn')} →</button>
+                                                <button className="sh-btn-secondary" onClick={() => window.open('mailto:support@lci.ma')}>
+                                                    📧 Contacter le support
+                                                </button>
                                             )}
                                         </div>
                                     </div>
@@ -410,7 +506,7 @@ const StudentHome = () => {
                                 <div className="sh-grades-panel">
                                     <div className="sh-grades-header">
                                         <span className="sh-grades-title">{t('dashboard.grades_title')}</span>
-                                        <span className="sh-grades-mean">{calculateMean(application)}<small>/20</small></span>
+                                        <span className="sh-grades-mean">{calculateMean(application).toFixed(2)}<small>/20</small></span>
                                     </div>
                                     <div className="sh-grades-list">
                                         {subjects.map((sub, i) => {

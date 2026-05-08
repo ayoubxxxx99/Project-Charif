@@ -59,7 +59,8 @@
     "gpa": "Moyenne Générale",
     "download_btn": "Télécharger le reçu",
     "support_btn": "Besoin d'aide ?",
-    "grades_title": "Relevé de Notes"
+    "grades_title": "Relevé de Notes",
+    "support":"Contacter le support"
   },
   "subjects": {
     "maths": "Mathématiques",

@@ -13,12 +13,26 @@ const AcceptedStudents = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState('');
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [emailStudent, setEmailStudent] = useState(null);
     const [selectedIds, setSelectedIds] = useState([]);
-    const [topCount, setTopCount] = useState(0);
+    const [topCount, setTopCount] = useState('');
+    const [savedMainListIds, setSavedMainListIds] = useState([]);
     const navigate = useNavigate();
 
     const token = localStorage.getItem('token');
     const API_URL = 'http://127.0.0.1:8000/api';
+    const modalVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 25 } },
+    exit: { opacity: 0, scale: 0.95, y: 20, transition: { duration: 0.2 } }
+    };
+
+    const overlayVariants = {
+     hidden: { opacity: 0 },
+     visible: { opacity: 1 },
+     exit: { opacity: 0 }
+    };
 
     const calculateMean = (student) => {
         const grades = [
@@ -36,12 +50,16 @@ const AcceptedStudents = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const count = res.data.main_list_count ?? 0;
+            const ids = res.data.main_list_ids ?? [];
+            
             setMainListCount(count);
             setOriginalMainListCount(count);
+            setSavedMainListIds(ids);
         } catch (err) {
             console.error('Erreur chargement settings:', err);
             setMainListCount(0);
             setOriginalMainListCount(0);
+            setSavedMainListIds([]);
         }
     };
 
@@ -70,17 +88,14 @@ const AcceptedStudents = () => {
     const handleEdit = () => {
         setIsEditing(true);
         setSaveMessage('');
-        // 🔥 PRÉ-SÉLECTIONNE les N premiers candidats selon mainListCount actuel
-        const currentMainIds = acceptedList.slice(0, mainListCount).map(s => s.id);
-        setSelectedIds(currentMainIds);
-        setTopCount(mainListCount.toString());
+        setSelectedIds([...savedMainListIds]);
+        setTopCount(savedMainListIds.length > 0 ? savedMainListIds.length.toString() : '');
     };
 
     const handleCancel = () => {
-        setMainListCount(originalMainListCount);
         setIsEditing(false);
         setSelectedIds([]);
-        setTopCount(0);
+        setTopCount('');
         setSaveMessage('');
     };
 
@@ -88,16 +103,21 @@ const AcceptedStudents = () => {
         setIsSaving(true);
         try {
             await axios.put(`${API_URL}/settings/main-list-count`,
-                { main_list_count: mainListCount },
+                { 
+                    main_list_count: selectedIds.length,
+                    main_list_ids: selectedIds
+                },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            setOriginalMainListCount(mainListCount);
+            setOriginalMainListCount(selectedIds.length);
+            setMainListCount(selectedIds.length);
+            setSavedMainListIds([...selectedIds]);
             setSaveMessage('Enregistré');
             setTimeout(() => {
                 setSaveMessage('');
                 setIsEditing(false);
                 setSelectedIds([]);
-                setTopCount(0);
+                setTopCount('');
             }, 1500);
         } catch (err) {
             setSaveMessage('Erreur');
@@ -108,13 +128,19 @@ const AcceptedStudents = () => {
     };
 
     const exportToExcel = () => {
-        const data = acceptedList.map((s, i) => ({
-            Rang: i + 1,
-            Liste: i < mainListCount ? 'Principale' : 'Attente',
-            Nom: s.full_name,
-            Massar: s.massar_code,
-            Moyenne: calculateMean(s)
-        }));
+        const displayList = getDisplayList();
+        
+        const data = displayList.map((s, i) => {
+            const isMain = isInMainList(s.id);
+            return {
+                Rang: i + 1,
+                Liste: isMain ? 'Principale' : 'Attente',
+                Nom: s.full_name,
+                Massar: s.massar_code,
+                Moyenne: calculateMean(s)
+            };
+        });
+        
         const ws = XLSX.utils.json_to_sheet(data);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Admissions");
@@ -131,29 +157,27 @@ const AcceptedStudents = () => {
         navigate('/login');
     };
 
-    // ── Sélection manuelle par checkbox ──
     const toggleSelect = (id) => {
         if (!isEditing) return;
         setSelectedIds(prev => {
-            const newSelection = prev.includes(id) 
-                ? prev.filter(item => item !== id) 
-                : [...prev, id];
-            setMainListCount(newSelection.length);
-            return newSelection;
+            if (prev.includes(id)) {
+                return prev.filter(item => item !== id);
+            } else {
+                return [...prev, id];
+            }
         });
     };
 
-    // ── Sélection par stepper (Top X) ──
     const selectTopX = (count) => {
         if (!isEditing) return;
         if (!count || count <= 0) {
             setSelectedIds([]);
-            setMainListCount(0);
+            setTopCount('');
             return;
         }
         const topSelection = filteredList.slice(0, count).map(s => s.id);
         setSelectedIds(topSelection);
-        setMainListCount(topSelection.length);
+        setTopCount(count.toString());
     };
 
     // Détermine si un candidat est en liste principale
@@ -161,15 +185,47 @@ const AcceptedStudents = () => {
         if (isEditing) {
             return selectedIds.includes(studentId);
         }
-        const rankIndex = acceptedList.findIndex(s => s.id === studentId);
-        return rankIndex < mainListCount;
+        return savedMainListIds.includes(studentId);
+    };
+
+    // 🔥 TRI FINAL : Liste principale d'abord (par moyenne), puis attente (par moyenne)
+    const getDisplayList = () => {
+        const mainList = [];
+        const waitList = [];
+        
+        // Utilise filteredList ou acceptedList selon s'il y a une recherche
+        const sourceList = searchTerm ? filteredList : acceptedList;
+        
+        sourceList.forEach(student => {
+            if (isInMainList(student.id)) {
+                mainList.push(student);
+            } else {
+                waitList.push(student);
+            }
+        });
+        
+        // Trie chaque groupe par moyenne décroissante
+        const sortByMean = (a, b) => parseFloat(calculateMean(b)) - parseFloat(calculateMean(a));
+        mainList.sort(sortByMean);
+        waitList.sort(sortByMean);
+        
+        // Liste principale d'abord, puis attente
+        return [...mainList, ...waitList];
+    };
+
+    // Récupère le rang dans la liste principale
+    const getMainListRank = (studentId) => {
+        if (!isInMainList(studentId)) return null;
+        const displayList = getDisplayList();
+        const mainList = displayList.filter(s => isInMainList(s.id));
+        const index = mainList.findIndex(s => s.id === studentId);
+        return index !== -1 ? index + 1 : null;
     };
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="accepted-page-wrapper">
             <div className="accepted-container">
 
-                {/* ── HEADER ── */}
                 <header className="accepted-header">
                     <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="accepted-brand">
                         <button className="btn-back" onClick={() => navigate('/admin')}>
@@ -193,10 +249,8 @@ const AcceptedStudents = () => {
                     </div>
                 </header>
 
-                {/* ── TOOLBAR ── */}
                 <div className="accepted-toolbar">
 
-                    {/* GAUCHE : Recherche + Stats Total / P / A */}
                     <div className="toolbar-left-group">
                         <div className="search-container">
                             <span className="search-icon">🔍</span>
@@ -219,19 +273,18 @@ const AcceptedStudents = () => {
                             <span className="stat-dot dot-green" />
                             <span className="stat-label">P</span>
                             <strong className="stat-value text-green">
-                                {isEditing ? selectedIds.length : Math.min(mainListCount, acceptedList.length)}
+                                {isEditing ? selectedIds.length : savedMainListIds.length}
                             </strong>
                         </div>
                         <div className="stat-chip">
                             <span className="stat-dot dot-amber" />
                             <span className="stat-label">A</span>
                             <strong className="stat-value text-amber">
-                                {isEditing ? acceptedList.length - selectedIds.length : Math.max(0, acceptedList.length - mainListCount)}
+                                {isEditing ? acceptedList.length - selectedIds.length : acceptedList.length - savedMainListIds.length}
                             </strong>
                         </div>
                     </div>
 
-                    {/* DROITE : Modifier → (Sélection stepper + manuelle + Annuler + Enregistrer) */}
                     <div className="toolbar-right-group">
 
                         <AnimatePresence mode="wait">
@@ -254,7 +307,6 @@ const AcceptedStudents = () => {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     className="edit-mode-toolbar"
                                 >
-                                    {/* Sélection par stepper (Top X) */}
                                     <div className="selection-group-inline">
                                         <span className="selection-label-inline">📋 Sélection</span>
                                         <div className="stepper-frame mini-stepper">
@@ -302,7 +354,6 @@ const AcceptedStudents = () => {
                                             </div>
                                         </div>
 
-                                        {/* Compteur de sélectionnés */}
                                         <AnimatePresence>
                                             {selectedIds.length > 0 && (
                                                 <motion.div
@@ -340,7 +391,6 @@ const AcceptedStudents = () => {
                     </div>
                 </div>
 
-                {/* ── TABLE ── */}
                 <div className="table-wrapper-modern">
                     <table className="admin-table">
                         <thead>
@@ -354,12 +404,10 @@ const AcceptedStudents = () => {
                                             if (!isEditing) return;
                                             if (selectedIds.length === filteredList.length) {
                                                 setSelectedIds([]);
-                                                setMainListCount(0);
                                                 setTopCount('');
                                             } else {
                                                 const allIds = filteredList.map(s => s.id);
                                                 setSelectedIds(allIds);
-                                                setMainListCount(allIds.length);
                                                 setTopCount(allIds.length.toString());
                                             }
                                         }}
@@ -370,13 +418,15 @@ const AcceptedStudents = () => {
                                 <th>Candidat</th>
                                 <th>Code Massar</th>
                                 <th>Moyenne</th>
+                                <th>État Email</th>
                                 <th className="text-right">Verdict</th>
                             </tr>
                         </thead>
                         <tbody>
                             <AnimatePresence>
-                                {filteredList.map((student, index) => {
+                                {getDisplayList().map((student, index) => {
                                     const isMainList = isInMainList(student.id);
+                                    const mainRank = getMainListRank(student.id);
 
                                     return (
                                         <motion.tr
@@ -384,7 +434,7 @@ const AcceptedStudents = () => {
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, x: -20 }}
-                                            className={`modern-row ${selectedIds.includes(student.id) ? 'row-selected' : ''} ${!isEditing ? 'row-readonly' : ''}`}
+                                            className={`modern-row ${selectedIds.includes(student.id) ? 'row-selected' : ''} ${!isEditing ? 'row-readonly' : ''} ${isMainList ? 'row-main-list' : 'row-wait-list'}`}
                                             onClick={() => isEditing && toggleSelect(student.id)}
                                         >
                                             <td onClick={(e) => e.stopPropagation()}>
@@ -396,7 +446,13 @@ const AcceptedStudents = () => {
                                                     disabled={!isEditing}
                                                 />
                                             </td>
-                                            <td className="rank-col">#{index + 1}</td>
+                                            <td className="rank-col">
+                                                {isMainList ? (
+                                                    <span className="main-rank-badge">#{mainRank}</span>
+                                                ) : (
+                                                    <span className="wait-rank">#{index + 1}</span>
+                                                )}
+                                            </td>
                                             <td className="student-name-cell">
                                                 <div className="student-cell">
                                                     <div className="student-avatar">{student.full_name.charAt(0)}</div>
@@ -405,8 +461,16 @@ const AcceptedStudents = () => {
                                             </td>
                                             <td><span className="massar-badge">{student.massar_code}</span></td>
                                             <td>
-                                                <span className="mean-text">{calculateMean(student)}</span>
-                                                <small className="text-muted">/ 20</small>
+                                              <span className="mean-text">{calculateMean(student)}</span>
+                                              <small className="text-muted">/ 20</small>
+                                            </td>
+                                              {/* ── ÉTAT EMAIL ── */}
+                                            <td onClick={(e) => { e.stopPropagation(); setEmailStudent(student); setShowEmailModal(true); }} style={{ cursor: 'pointer' }}>
+                                              {
+                                              student.convocation_sent
+                                              ? <span className="email-sent-badge">✅ Envoyé</span>
+                                              : <span className="email-pending-badge">⏳ En attente</span>
+                                              }
                                             </td>
                                             <td className="text-right">
                                                 <span className={`status-tag ${isMainList ? 'tag-accepted' : 'tag-rejected'}`}>
@@ -420,6 +484,51 @@ const AcceptedStudents = () => {
                         </tbody>
                     </table>
                 </div>
+             {/* ── MODAL ÉTAT EMAIL ── */}
+<AnimatePresence>
+    {showEmailModal && emailStudent && (
+        <motion.div variants={overlayVariants} initial="hidden" animate="visible" exit="exit" className="modal-overlay" onClick={() => setShowEmailModal(false)}>
+            <motion.div variants={modalVariants} className="modal-content profile-modal" onClick={e => e.stopPropagation()}>
+                <div className="profile-header-new">
+                    <div className="header-info">
+                        <h3>{emailStudent.full_name}</h3>
+                        <span className="massar-badge">{emailStudent.massar_code}</span>
+                    </div>
+                    <span className="status-tag tag-accepted">PRINCIPALE</span>
+                </div>
+                <div className="profile-email-status">
+                    <span className="profile-email-label">État de la convocation :</span>
+                    {emailStudent.convocation_sent
+                        ? <span className="email-sent-badge">✅ Email envoyé</span>
+                        : <span className="email-pending-badge">⏳ En attente d'envoi</span>
+                    }
+                </div>
+                <div className="profile-body">
+                    <h4 className="section-title">Relevé de notes</h4>
+                    <div className="grades-grid">
+                        {['maths', 'physique', 'langue_etrangere', 'langue_secondaire', 'histoire_geo', 'education_islamique', 'sport'].map(sub => (
+                            <div className="grade-card" key={sub}>
+                                <span className="grade-label">{sub.replace('_', ' ')}</span>
+                                <strong className="grade-value">
+                                    {emailStudent[sub]} <span className="text-muted">/20</span>
+                                </strong>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="modal-footer-modern profile-footer">
+                    <div className="final-score">
+                        <span>Moyenne Générale</span>
+                        <strong className="primary-text">
+                            {calculateMean(emailStudent)} <small>/ 20</small>
+                        </strong>
+                    </div>
+                    <button className="btn-close-modern" onClick={() => setShowEmailModal(false)}>Fermer</button>
+                </div>
+            </motion.div>
+        </motion.div>
+    )}
+</AnimatePresence>   
             </div>
         </motion.div>
     );
