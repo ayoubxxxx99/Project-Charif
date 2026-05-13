@@ -48,7 +48,7 @@ class ApplicationController extends Controller
         return response()->json($application);
     }
 
-        public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:accepted,rejected,pending',
@@ -60,17 +60,24 @@ class ApplicationController extends Controller
         $application->update(['status' => $request->status]);
 
         if ($oldStatus !== $request->status) {
-            NotificationService::notifySecretaries(
-                $request->status === 'accepted' ? 'to_main' : 'to_wait',
-                $application->full_name,
-                "{$application->full_name} — " . ($request->status === 'accepted' ? 'Liste Principale' : "Liste d'Attente")
-            );
+            if ($request->status === 'accepted') {
+                $type = 'to_main';
+                $detail = "{$application->full_name} — Accepté (Liste Principale)";
+            } elseif ($request->status === 'rejected') {
+                $type = 'removed';
+                $detail = "{$application->full_name} — Refusé";
+            } else {
+                $type = 'to_wait';
+                $detail = "{$application->full_name} — Mis en attente";
+            }
+
+            NotificationService::notifySecretaries($type, $application->full_name, $detail);
         }
 
         return response()->json($application);
     }
 
-        public function bulkUpdateStatus(Request $request)
+    public function bulkUpdateStatus(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',
@@ -85,11 +92,18 @@ class ApplicationController extends Controller
             $application->update(['status' => $request->status]);
             
             if ($oldStatus !== $request->status) {
-                NotificationService::notifySecretaries(
-                    $request->status === 'accepted' ? 'to_main' : 'to_wait',
-                    $application->full_name,
-                    "{$application->full_name} — " . ($request->status === 'accepted' ? 'Liste Principale' : "Liste d'Attente")
-                );
+                if ($request->status === 'accepted') {
+                    $type = 'to_main';
+                    $detail = "{$application->full_name} — Accepté (Liste Principale)";
+                } elseif ($request->status === 'rejected') {
+                    $type = 'removed';
+                    $detail = "{$application->full_name} — Refusé";
+                } else {
+                    $type = 'to_wait';
+                    $detail = "{$application->full_name} — Mis en attente";
+                }
+
+                NotificationService::notifySecretaries($type, $application->full_name, $detail);
             }
         }
 
@@ -101,8 +115,7 @@ class ApplicationController extends Controller
         return response()->json(Application::orderBy('created_at', 'desc')->get());
     }
 
-
-        public function sendConvocations(Request $request)
+    public function sendConvocations(Request $request)
     {
         $request->validate([
             'ids' => 'required|array',

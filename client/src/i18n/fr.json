@@ -51,7 +51,8 @@
     "save_btn": "Soumettre mon Dossier",
     "success_msg_save": "Profil mis à jour !",
     "edit": "Modifier",
-    "name_placeholder":"Ex:Mohammed Alami"
+    "name_placeholder":"Ex:Mohammed Alami",
+    "saved_msg": "✓ Profil enregistré !"
   },
   "dashboard": {
     "massar_code": "Code Massar",
@@ -60,7 +61,7 @@
     "download_btn": "Télécharger le reçu",
     "support_btn": "Besoin d'aide ?",
     "grades_title": "Relevé de Notes",
-    "support":"Contacter le support"
+    "contact_support": "Contacter le support"
   },
   "subjects": {
     "maths": "Mathématiques",
@@ -71,11 +72,27 @@
     "islamic_edu": "Éducation Islamique",
     "sport": "Sport"
   },
-  "status": {
+   "status": {
     "accepted": {
       "label": "Accepté",
       "title": "Félicitations !",
       "message": "Votre candidature a été retenue pour l'inscription."
+    },
+    "waiting_list": {
+      "label": "Présélectionné - Liste d'Attente",
+      "title": "Vous êtes en liste d'attente.",
+      "message": "Vous serez contacté par email si une place se libère en liste principale."
+    },
+    "main_list": {
+      "label": "Présélectionné - Liste Principale",
+      "title": "Félicitations ! Vous êtes présélectionné.",
+      "message": "Vous faites partie de la liste principale. Vous recevrez votre convocation par email dans les prochains jours."
+    },
+    "convocation": {
+      "label": "Convocation Envoyée",
+      "title": "Votre convocation a été envoyée !",
+      "message": "Vérifiez votre boîte email. Si vous ne trouvez rien, vérifiez vos spams.",
+      "download_btn": "Télécharger la convocation"
     },
     "rejected": {
       "label": "Refusé",
@@ -87,7 +104,9 @@
       "title": "Dossier en étude",
       "message": "Votre demande est en cours de traitement par l'administration."
     }
-  },
+},
+  "rank": "Rang de candidature : #{{rank}} sur {{total}}",
+
   "empty": {
     "title": "Aucune candidature",
     "desc": "Vous n'avez pas encore soumis de dossier de candidature.",
@@ -104,8 +123,12 @@
   },
   "reg_form_desc_warning": "Veuillez vérifier scrupuleusement vos notes. Toute fausse déclaration entraînera le rejet automatique de votre dossier.",
   "errors": {
+    "field_required": "Ce champ est obligatoire.",
     "massar_format": "Format invalide — ex: J123456789 (1 lettre + 9 chiffres)",
-    "generic_error": "Vérifiez vos informations et réessayez."
-    
+    "generic_error": "Vérifiez vos informations et réessayez.",
+    "grade_min": "La note ne peut pas être négative.",
+    "grade_max": "La note ne peut pas dépasser 20.",
+    "grade_range": "Toutes les notes doivent être entre 0 et 20."
+
   }
 }

@@ -269,20 +269,26 @@ const AcceptedStudents = () => {
                             <span className="stat-label">Total</span>
                             <strong className="stat-value">{acceptedList.length}</strong>
                         </div>
+                       
                         <div className="stat-chip">
-                            <span className="stat-dot dot-green" />
-                            <span className="stat-label">P</span>
-                            <strong className="stat-value text-green">
-                                {isEditing ? selectedIds.length : savedMainListIds.length}
+                          <span className="stat-dot dot-green" />
+                          <span className="stat-label">P</span>
+                          <strong className="stat-value text-green">
+                                {isEditing
+                                 ? Math.min(selectedIds.length, acceptedList.length)
+                                 : Math.min(savedMainListIds.length, acceptedList.length)
+                                }
                             </strong>
-                        </div>
-                        <div className="stat-chip">
-                            <span className="stat-dot dot-amber" />
-                            <span className="stat-label">A</span>
-                            <strong className="stat-value text-amber">
-                                {isEditing ? acceptedList.length - selectedIds.length : acceptedList.length - savedMainListIds.length}
-                            </strong>
-                        </div>
+                         </div>
+                         <div className="stat-chip">
+                           <span className="stat-dot dot-amber" />
+                           <span className="stat-label">A</span>
+                           <strong className="stat-value text-amber">
+                             {isEditing
+                                 ? Math.max(0, acceptedList.length - selectedIds.length)
+                                 : Math.max(0, acceptedList.length - savedMainListIds.length)}
+                           </strong>
+                       </div>
                     </div>
 
                     <div className="toolbar-right-group">

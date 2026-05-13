@@ -371,7 +371,7 @@ const AdminDashboard = () => {
                                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, x: -20 }} transition={{ delay: index * 0.03 }}
                                             className={`modern-row ${selectedIds.includes(student.id) ? 'row-selected' : ''} ${!isEditing ? 'row-readonly' : ''} ${isDraftChanged ? 'row-draft' : ''}`}
-                                            onClick={() => isEditing && setSelectedStudent(student)}
+                                            onClick={() => setSelectedStudent(student)}
                                         >
                                             <td onClick={(e) => e.stopPropagation()}>
                                                 <input 

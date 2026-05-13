@@ -337,32 +337,32 @@ const StudentHome = () => {
 
             if (convocationSent) {
                 return {
-                    label: 'Convocation Envoyée',
+                    label: t('status.convocation.label'),
                     color: 'blue',
                     icon: '📧',
-                    title: 'Votre convocation a été envoyée !',
-                    message: `Vérifiez votre boîte email (${app.email || ''}). Si vous ne trouvez rien, vérifiez vos spams ou courriers indésirables.`,
+                    title: t('status.convocation.title'),
+                    message: t('status.convocation.message'),
                     showDownload: true,
                 };
             }
 
             if (isMain) {
                 return {
-                    label: 'Présélectionné - Liste Principale',
+                    label:t('status.main_list.label'),
                     color: 'green',
                     icon: '✓',
-                    title: 'Félicitations ! Vous êtes présélectionné.',
-                    message: 'Vous faites partie de la liste principale. Vous recevrez votre convocation par email dans les prochains jours.',
+                    title: t('status.main_list.title'),
+                    message: t('status.main_list.message'),
                     showDownload: false,
                 };
             }
 
             return {
-                label: 'Présélectionné - Liste d\'Attente',
+                label: t('status.waiting_list.label'),
                 color: 'orange',
                 icon: '⏳',
-                title: 'Vous êtes en liste d\'attente.',
-                message: 'Vous serez contacté par email si une place se libère en liste principale.',
+                title: t('status.waiting_list.title'),
+                message: t('status.waiting_list.message'),
                 showDownload: false,
             };
         }
@@ -458,11 +458,12 @@ const StudentHome = () => {
                                             </span>
                                         </div>
                                         
-                                        {/* 🔥 MODIFIÉ : Rang au-dessus du titre, message clair */}
+                                    
                                         <div className="sh-status-body">
                                             {application.status === 'accepted' && studentRank && (
-                                                <p className="sh-rank-text">
-                                                    Rang de candidature : <strong>#{studentRank.rank}</strong> sur {studentRank.total}
+                                                // Rang
+                                               <p className="sh-rank-text">
+                                                   {t('rank', { rank: studentRank.rank, total: studentRank.total })}
                                                 </p>
                                             )}
                                             <h2 className="sh-status-title">{cfg.title}</h2>
@@ -496,7 +497,7 @@ const StudentHome = () => {
                                                 <button className="sh-btn-secondary" disabled>{t('dashboard.support')}</button>
                                             ) : (
                                                 <button className="sh-btn-secondary" onClick={() => window.open('mailto:support@lci.ma')}>
-                                                    📧 Contacter le support
+                                                    {t('dashboard.contact_support')}
                                                 </button>
                                             )}
                                         </div>

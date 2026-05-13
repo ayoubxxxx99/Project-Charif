@@ -26,14 +26,51 @@ const ApplicationForm = () => {
     const [massarError, setMassarError] = useState('');
     const [touched, setTouched] = useState({});
     const [submitted, setSubmitted] = useState(false);
+    const [gradeErrors, setGradeErrors] = useState({});
 
     useEffect(() => {
         document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = i18n.language;
     }, [i18n.language]);
 
+    const gradeKeys = ['maths','physique','langue_etrangere','langue_secondaire','histoire_geo','education_islamique','sport'];
+
     const update = (field) => (e) => {
         setFormData({ ...formData, [field]: e.target.value });
+        setTouched(prev => ({ ...prev, [field]: true }));
+    };
+
+    // 🔥 NOUVEAU : update spécifique pour les notes avec validation 0-20
+    const updateGrade = (field) => (e) => {
+        const raw = e.target.value;
+
+        // Autorise le champ vide (pour pouvoir effacer)
+        if (raw === '') {
+            setFormData(prev => ({ ...prev, [field]: '' }));
+            setGradeErrors(prev => ({ ...prev, [field]: '' }));
+            setTouched(prev => ({ ...prev, [field]: true }));
+            return;
+        }
+
+        const val = parseFloat(raw);
+
+        if (isNaN(val)) return; // ignore les caractères non numériques
+
+        if (val < 0) {
+            setGradeErrors(prev => ({ ...prev, [field]: t('errors.grade_min') }));
+            setFormData(prev => ({ ...prev, [field]: raw }));
+            return;
+        }
+
+        if (val > 20) {
+            setGradeErrors(prev => ({ ...prev, [field]: t('errors.grade_max') }));
+            setFormData(prev => ({ ...prev, [field]: raw }));
+            return;
+        }
+
+        // Valeur correcte
+        setGradeErrors(prev => ({ ...prev, [field]: '' }));
+        setFormData(prev => ({ ...prev, [field]: raw }));
         setTouched(prev => ({ ...prev, [field]: true }));
     };
 
@@ -44,6 +81,7 @@ const ApplicationForm = () => {
 
     const fieldError = (key) => {
         if ((touched[key] || submitted) && !formData[key]) return t('errors.field_required');
+        if (gradeErrors[key]) return gradeErrors[key];
         return null;
     };
 
@@ -52,8 +90,19 @@ const ApplicationForm = () => {
         setSubmitted(true);
         setError('');
 
-        const gradeKeys = ['maths','physique','langue_etrangere','langue_secondaire','histoire_geo','education_islamique','sport'];
+        // Vérifie que tous les champs sont remplis
         if (gradeKeys.some(k => !formData[k]) || !formData.massar_code) return;
+
+        // 🔥 NOUVEAU : Vérifie que toutes les notes sont entre 0 et 20
+        const hasGradeError = gradeKeys.some(k => {
+            const val = parseFloat(formData[k]);
+            return isNaN(val) || val < 0 || val > 20;
+        });
+        if (hasGradeError) {
+            setError(t('errors.grade_range'));
+            return;
+        }
+
         if (!/^[A-Za-z]\d{9}$/.test(formData.massar_code)) {
             setMassarError(t('errors.massar_format'));
             return;
@@ -204,10 +253,12 @@ const ApplicationForm = () => {
                                                 <input
                                                     type="number"
                                                     className={`af-grade-input ${err ? 'af-input-error' : ''}`}
-                                                    step="0.01" min="0" max="20"
+                                                    step="0.01"
+                                                    min="0"
+                                                    max="20"
                                                     placeholder="—"
                                                     value={formData[key]}
-                                                    onChange={update(key)}
+                                                    onChange={updateGrade(key)}
                                                     onBlur={() => setTouched(prev => ({ ...prev, [key]: true }))}
                                                 />
                                                 <span className="af-grade-unit">/20</span>
