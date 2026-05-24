@@ -40,11 +40,9 @@ const ApplicationForm = () => {
         setTouched(prev => ({ ...prev, [field]: true }));
     };
 
-    // 🔥 NOUVEAU : update spécifique pour les notes avec validation 0-20
-    const updateGrade = (field) => (e) => {
+     const updateGrade = (field) => (e) => {
         const raw = e.target.value;
 
-        // Autorise le champ vide (pour pouvoir effacer)
         if (raw === '') {
             setFormData(prev => ({ ...prev, [field]: '' }));
             setGradeErrors(prev => ({ ...prev, [field]: '' }));
@@ -52,9 +50,15 @@ const ApplicationForm = () => {
             return;
         }
 
+       
+        const parts = raw.split('.');
+        if (parts.length > 1 && parts[1].length > 2) {
+            return; // Ignore la frappe
+        }
+
         const val = parseFloat(raw);
 
-        if (isNaN(val)) return; // ignore les caractères non numériques
+        if (isNaN(val)) return;
 
         if (val < 0) {
             setGradeErrors(prev => ({ ...prev, [field]: t('errors.grade_min') }));
@@ -68,11 +72,22 @@ const ApplicationForm = () => {
             return;
         }
 
-        // Valeur correcte
         setGradeErrors(prev => ({ ...prev, [field]: '' }));
         setFormData(prev => ({ ...prev, [field]: raw }));
         setTouched(prev => ({ ...prev, [field]: true }));
     };
+
+    const handleBlur = (field) => (e) => {
+    const raw = formData[field];
+    if (raw === '' || raw === null) return;
+    const val = Math.round(parseFloat(raw) * 100) / 100;
+    if (!isNaN(val)) {
+        setFormData(prev => ({ 
+            ...prev, 
+            [field]: val.toFixed(2) 
+        }));
+    }
+};
 
     const validateMassar = (value) => {
         if (!value) { setMassarError(''); return; }
@@ -90,10 +105,8 @@ const ApplicationForm = () => {
         setSubmitted(true);
         setError('');
 
-        // Vérifie que tous les champs sont remplis
         if (gradeKeys.some(k => !formData[k]) || !formData.massar_code) return;
 
-        // 🔥 NOUVEAU : Vérifie que toutes les notes sont entre 0 et 20
         const hasGradeError = gradeKeys.some(k => {
             const val = parseFloat(formData[k]);
             return isNaN(val) || val < 0 || val > 20;
@@ -136,7 +149,6 @@ const ApplicationForm = () => {
     return (
         <motion.div className="af-page" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
-            {/* ── HEADER ── */}
             <header className="af-header">
                 <div className="af-header-brand">
                     <span className="af-brand-acronym">LCI</span>
@@ -153,7 +165,6 @@ const ApplicationForm = () => {
                 </div>
             </header>
 
-            {/* Language toggle */}
             <div className="lang-toggle-floating">
                 <button type="button" className={`lang-btn ${i18n.language === 'fr' ? 'active' : ''}`} onClick={() => i18n.changeLanguage('fr')}>FR</button>
                 <button type="button" className={`lang-btn ${i18n.language === 'ar' ? 'active' : ''}`} onClick={() => i18n.changeLanguage('ar')}>AR</button>
@@ -171,7 +182,6 @@ const ApplicationForm = () => {
 
                     <form onSubmit={handleSubmit} noValidate>
 
-                        {/* ── SECTION 01 ── */}
                         <section className="af-section">
                             <div className="af-section-header">
                                 <span className="af-section-num">01</span>
@@ -179,7 +189,6 @@ const ApplicationForm = () => {
                             </div>
                             <div className="af-personal-grid">
 
-                                {/* Nom — non modifiable */}
                                 <div className="af-field-group">
                                     <label className="af-label">
                                         {t('profile.full_name')}
@@ -197,7 +206,6 @@ const ApplicationForm = () => {
                                     </div>
                                 </div>
 
-                                {/* Code Massar */}
                                 <div className="af-field-group">
                                     <label className="af-label">{t('dashboard.massar_code')}</label>
                                     <input
@@ -232,7 +240,6 @@ const ApplicationForm = () => {
 
                         <div className="af-divider" />
 
-                        {/* ── SECTION 02 ── */}
                         <section className="af-section">
                             <div className="af-section-header">
                                 <span className="af-section-num">02</span>
@@ -256,10 +263,10 @@ const ApplicationForm = () => {
                                                     step="0.01"
                                                     min="0"
                                                     max="20"
-                                                    placeholder="—"
+                                                    placeholder="0.00"
                                                     value={formData[key]}
                                                     onChange={updateGrade(key)}
-                                                    onBlur={() => setTouched(prev => ({ ...prev, [key]: true }))}
+                                                    onBlur={handleBlur(key)}
                                                 />
                                                 <span className="af-grade-unit">/20</span>
                                             </div>

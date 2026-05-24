@@ -38,14 +38,17 @@ const Register = () => {
                 headers: { 'Accept': 'application/json' }
             });
             navigate('/login');
-        } catch (err) {
-            setError(err.response?.data?.message || t('error_registration'));
-            setLoading(false);
+        } 
+        catch (err) {
+           setError(err.response?.data?.message || t('error_registration'));
+        }
+        finally {
+          setLoading(false);
         }
     };
 
     const fields = [
-        { key: 'name',                  label: t('name_label'),             type: 'text',     placeholder: 'Nom & Prénom',           icon: '✦' },
+        { key: 'name',                  label: t('name_label'),             type: 'text',     placeholder: 'Nom et prénom',           icon: '✦' },
         { key: 'email',                 label: t('email_label'),            type: 'email',    placeholder: 'test@charif-idrissi.ma', icon: '@' },
         { key: 'password',              label: t('password_label'),         type: 'password', placeholder: '••••••••••',             icon: '⬡' },
         { key: 'password_confirmation', label: t('confirm_password_label'), type: 'password', placeholder: '••••••••••',             icon: '⬡' },

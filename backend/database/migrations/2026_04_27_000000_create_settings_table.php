@@ -9,17 +9,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Ajoute la nouvelle clé avec un tableau vide JSON
-        DB::table('settings')->insert([
-            'key' => 'main_list_ids',
-            'value' => json_encode([]),
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+
+        Schema::create('settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('key')->unique();
+            $table->text('value')->nullable();
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
-        DB::table('settings')->where('key', 'main_list_ids')->delete();
+        Schema::dropIfExists('settings');
     }
 };

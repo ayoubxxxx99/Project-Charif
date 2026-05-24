@@ -194,14 +194,14 @@ const AdminDashboard = () => {
                         <div className="brand-logo">
                             <span className="logo-accent">LCI</span>
                             <div className="v-divider"></div>
-                            <h2>Dashboard Admission</h2>
+                            <h2>Tableau de bord - Admissions</h2>
                         </div>
-                        <span className="live-badge">{filteredStudents.length} Dossiers au total</span>
+                        <span className="live-badge">{filteredStudents.length} dossiers au total</span>
                     </motion.div>
 
                     <div className="header-actions">
                         <button className="btn-accepted-header" onClick={() => navigate('/admin/accepted')}>
-                            <span>✅</span> Candidats Acceptés
+                            <span>✅</span> Candidats acceptés
                         </button>
                         <button className="btn-logout-minimal" onClick={handleLogout}>
                             Quitter <span>→</span>
@@ -216,7 +216,7 @@ const AdminDashboard = () => {
                             <span className="search-icon">🔍</span>
                             <input 
                                 type="text" 
-                                placeholder="Rechercher par nom ou Massar..." 
+                                placeholder="Rechercher par nom ou code Massar..." 
                                 className="modern-search-input"
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -436,18 +436,18 @@ const AdminDashboard = () => {
                         <motion.div variants={overlayVariants} initial="hidden" animate="visible" exit="exit" className="modal-overlay" onClick={() => setShowAdvancedModal(false)}>
                             <motion.div variants={modalVariants} className="modal-content filter-modal" onClick={e => e.stopPropagation()}>
                                 <div className="modal-header-flex">
-                                    <h3>🔍 Paramètres de Filtrage</h3>
+                                    <h3>🔍 Paramètres de filtrage</h3>
                                     <p className="subtitle">Affinez la liste des candidats par critères précis</p>
                                 </div>
                                 <div className="filter-grid">
                                     <div className="filter-card">
-                                        <label className="section-label">Moyenne Générale Minimale</label>
+                                        <label className="section-label">Moyenne générale minimale</label>
                                         <div className="input-with-icon">
                                             <input type="number" value={minMean} onChange={(e) => setMinMean(e.target.value)} placeholder="0.00" step="0.25" />
                                             <span className="unit-label">/ 20</span>
                                         </div>
                                     </div>
-                                    <div className="divider-text">Notes par Matière</div>
+                                    <div className="divider-text">Notes par matière</div>
                                     <div className="subjects-container">
                                         {Object.keys(subjectValues).map(sub => (
                                             <div key={sub} className={`subject-filter-row ${activeSubjects.includes(sub) ? 'active-row' : ''}`}>
@@ -512,7 +512,7 @@ const AdminDashboard = () => {
 
                                 <div className="modal-footer-modern profile-footer">
                                     <div className="final-score">
-                                        <span>Moyenne Générale</span>
+                                        <span>Moyenne générale</span>
                                         <strong className="primary-text">
                                             {calculateMean(selectedStudent)} <small>/ 20</small>
                                         </strong>

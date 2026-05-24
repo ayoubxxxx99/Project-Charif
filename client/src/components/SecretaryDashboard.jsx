@@ -321,7 +321,7 @@ const SecretaryDashboard = () => {
                         <button className="btn-back" onClick={handleLogout}>Déconnexion</button>
                         <div className="v-divider" />
                         <div className="header-title-block">
-                            <h1>Convocation des Admis</h1>
+                            <h1>Convocation des admis</h1>
                             <span className="count-badge">{acceptedList.length} au total</span>
                         </div>
                     </div>
@@ -430,7 +430,7 @@ const SecretaryDashboard = () => {
                                         onClick={handleSave}
                                         disabled={selectedIds.length === 0}
                                     >
-                                        💾 Enregistrer / Programmer
+                                        Programmer l'envoi
                                     </button>
 
                                     <button className="btn-cancel-edit" onClick={handleCancel}>
@@ -558,7 +558,7 @@ const SecretaryDashboard = () => {
                                 ) : (
                                     <>
                                         <div className="modal-sidebar">
-                                            <p className="sidebar-title">Heure du RDV</p>
+                                            <p className="sidebar-title">Heure du rendez-vous</p>
                                             <div className="time-grid">
                                                 {timeSlots.map(slot => (
                                                     <button
@@ -577,12 +577,12 @@ const SecretaryDashboard = () => {
                                                 <h3>Envoi des Emails</h3>
                                                 <p className="modal-subtitle">
                                                     <span className="pill-count">{selectedIds.length}</span>
-                                                    étudiants à convoquer
+                                                    candidats à convoquer
                                                 </p>
                                             </div>
 
                                             <div className="date-section">
-                                                <label className="field-label">Choisir la Date</label>
+                                                <label className="field-label">Choisir la date</label>
                                                 <input
                                                     type="date"
                                                     className="date-input"
@@ -644,7 +644,7 @@ const SecretaryDashboard = () => {
                                     <div>
                                         <h3>📋 Historique des modifications</h3>
                                         <p className="changes-subtitle">
-                                            {changeLog.filter(c => !c.checked).length} non lu{changeLog.filter(c => !c.checked).length > 1 ? 's' : ''} / {changeLog.length} total
+                                            {changeLog.filter(c => !c.checked).length} non lus{changeLog.filter(c => !c.checked).length > 1 ? 's' : ''} / {changeLog.length} total
                                         </p>
                                     </div>
                                     <div className="header-actions">
@@ -664,7 +664,7 @@ const SecretaryDashboard = () => {
                                     <input
                                         type="text"
                                         className="changes-search-input"
-                                        placeholder="Rechercher par nom d'étudiant..."
+                                        placeholder="Rechercher par nom du candidat..."
                                         value={searchNotif}
                                         onChange={(e) => setSearchNotif(e.target.value)}
                                     />

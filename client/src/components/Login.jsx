@@ -37,11 +37,13 @@ const Login = () => {
             } else {
                 navigate('/');
             }
-        } catch (err) {
-            console.error("Login Error:", err);
-             setError(t('error_login'));
-            setLoading(false);
+        } 
+        catch (err) {
+        setError(t('error_login'));
         }
+         finally {
+        setLoading(false); // ← toujours exécuté
+    }
     };
 
     return (
@@ -79,7 +81,7 @@ const Login = () => {
                     <div className="left-footer">
                         <div className="stat-row">
                             <div className="stat-item">
-                                <strong>2026</strong>
+                                <strong>{new Date().getFullYear()}</strong>
                                 <span>{t('stat_year')}</span>
                             </div>
                             <div className="stat-sep" />

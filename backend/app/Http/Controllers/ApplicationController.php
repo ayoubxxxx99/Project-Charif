@@ -173,11 +173,11 @@ class ApplicationController extends Controller
             'count' => count($request->ids)
         ]);
     }
+# public function getChangeHistory(Request $request)
+#   {
+#      return response()->json([
+#        'message' => 'Utilisez le stockage local pour l\'historique'
+# ]);
+#}
 
-    public function getChangeHistory(Request $request)
-    {
-        return response()->json([
-            'message' => 'Utilisez le stockage local pour l\'historique'
-        ]);
-    }
 }

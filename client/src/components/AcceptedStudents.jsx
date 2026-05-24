@@ -229,11 +229,11 @@ const AcceptedStudents = () => {
                 <header className="accepted-header">
                     <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="accepted-brand">
                         <button className="btn-back" onClick={() => navigate('/admin')}>
-                            <span>←</span> Dashboard
+                            <span>←</span> Tableau de bord
                         </button>
                         <div className="v-divider" />
                         <div className="header-title-block">
-                            <h1>Candidats Acceptés</h1>
+                            <h1>Candidats acceptés</h1>
                             <span className="accepted-count-badge">{acceptedList.length} admis</span>
                         </div>
                     </motion.div>
@@ -241,7 +241,7 @@ const AcceptedStudents = () => {
                     <div className="header-actions">
                         <button className="btn-convocation-header" onClick={exportToExcel}>
                             <span className="btn-icon">📥</span>
-                            Exporter Excel
+                            Exporter vers Excel
                         </button>
                         <button className="btn-logout-minimal" onClick={handleLogout}>
                             Quitter <span>→</span>
@@ -425,7 +425,7 @@ const AcceptedStudents = () => {
                                 <th>Code Massar</th>
                                 <th>Moyenne</th>
                                 <th>État Email</th>
-                                <th className="text-right">Verdict</th>
+                                <th className="text-right">Décision</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -500,7 +500,9 @@ const AcceptedStudents = () => {
                         <h3>{emailStudent.full_name}</h3>
                         <span className="massar-badge">{emailStudent.massar_code}</span>
                     </div>
-                    <span className="status-tag tag-accepted">PRINCIPALE</span>
+                    <span className={`status-tag ${isInMainList(emailStudent.id) ? 'tag-accepted' : 'tag-rejected'}`}>
+                        {isInMainList(emailStudent.id) ? 'PRINCIPALE' : 'ATTENTE'}
+                    </span>
                 </div>
                 <div className="profile-email-status">
                     <span className="profile-email-label">État de la convocation :</span>
