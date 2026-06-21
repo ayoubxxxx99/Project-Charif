@@ -54,19 +54,23 @@ const AdminDashboard = () => {
     };
 
     const handleStatusUpdate = (id, newStatus) => {
-        if (!isEditing) return;
-        setDraftChanges(prev => ({ ...prev, [id]: newStatus }));
-        setSelectedStudent(null);
+      if (!isEditing) return;
+      const student = list.find(s => s.id === id);
+      if (student?.convocation_sent) return;  
+      setDraftChanges(prev => ({ ...prev, [id]: newStatus }));
+      setSelectedStudent(null);
     };
 
     const handleBulkStatusUpdate = (newStatus) => {
-        if (!isEditing) return;
-        const updates = {};
-        selectedIds.forEach(id => {
-            updates[id] = newStatus;
-        });
-        setDraftChanges(prev => ({ ...prev, ...updates }));
-    };
+    if (!isEditing) return;
+    const updates = {};
+    selectedIds.forEach(id => {
+        const student = list.find(s => s.id === id);
+        if (student?.convocation_sent) return; 
+        updates[id] = newStatus;
+    });
+    setDraftChanges(prev => ({ ...prev, ...updates }));
+};
 
     const handleLogout = () => {
         localStorage.clear();
@@ -163,7 +167,7 @@ const AdminDashboard = () => {
         }
     };
 
-    // ── Label lisible pour le statut ──
+    
     const getStatusLabel = (status) => {
         switch (status) {
             case 'accepted': return 'Accepté';
@@ -409,17 +413,17 @@ const AdminDashboard = () => {
                                             <td className="text-right" onClick={(e) => e.stopPropagation()}>
                                                 <div className="action-btns-group">
                                                     <button 
-                                                        className={`action-btn accept ${!isEditing ? 'disabled' : ''}`} 
-                                                        title={isEditing ? "Accepter" : "Activez le mode édition"}
-                                                        onClick={() => handleStatusUpdate(student.id, 'accepted')}
-                                                        disabled={!isEditing}
-                                                    >✓</button>
-                                                    <button 
-                                                        className={`action-btn reject ${!isEditing ? 'disabled' : ''}`} 
-                                                        title={isEditing ? "Refuser" : "Activez le mode édition"}
-                                                        onClick={() => handleStatusUpdate(student.id, 'rejected')}
-                                                        disabled={!isEditing}
-                                                    >✕</button>
+    className={`action-btn accept ${!isEditing || student.convocation_sent ? 'disabled' : ''}`} 
+    title={student.convocation_sent ? "Convocation déjà envoyée — verrouillé" : (isEditing ? "Accepter" : "Activez le mode édition")}
+    onClick={() => handleStatusUpdate(student.id, 'accepted')}
+    disabled={!isEditing || student.convocation_sent}
+>✓</button>
+<button 
+    className={`action-btn reject ${!isEditing || student.convocation_sent ? 'disabled' : ''}`} 
+    title={student.convocation_sent ? "Convocation déjà envoyée — verrouillé" : (isEditing ? "Refuser" : "Activez le mode édition")}
+    onClick={() => handleStatusUpdate(student.id, 'rejected')}
+    disabled={!isEditing || student.convocation_sent}
+>✕</button>
                                                 </div>
                                             </td>
                                         </motion.tr>
@@ -518,7 +522,7 @@ const AdminDashboard = () => {
                                         </strong>
                                     </div>
                                     {/* Boutons d'action dans le modal aussi */}
-                                    {isEditing && (
+                                    {isEditing && !selectedStudent.convocation_sent && (
                                         <div className="modal-action-btns">
                                             <button
                                                 className="btn-modal-accept"
@@ -534,6 +538,7 @@ const AdminDashboard = () => {
                                             >◑ En attente</button>
                                         </div>
                                     )}
+
                                     <button className="btn-close-modern" onClick={() => setSelectedStudent(null)}>Fermer</button>
                                 </div>
                             </motion.div>

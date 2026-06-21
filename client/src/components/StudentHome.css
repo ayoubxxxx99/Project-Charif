@@ -688,7 +688,14 @@
   font-size: 11px;
   color: var(--text-muted);
 }
+.avatar-readonly {
+    cursor: default;
+    pointer-events: none;
+}
 
+.avatar-readonly .drawer-avatar-overlay {
+    display: none;
+}
 .drawer-divider {
   height: 1px;
   background: var(--border);

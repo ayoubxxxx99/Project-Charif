@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { Phone, Mail, MapPin, Eye, EyeOff, AlertTriangle, Lock } from 'lucide-react';
+import { FaFacebook } from 'react-icons/fa';
 import './Login.css';
 
 const Login = () => {
@@ -42,7 +44,7 @@ const Login = () => {
         setError(t('error_login'));
         }
          finally {
-        setLoading(false); // ← toujours exécuté
+        setLoading(false); 
     }
     };
 
@@ -74,12 +76,31 @@ const Login = () => {
                         </h1>
                         <p className="left-subtitle">{t('left_subtitle')}</p>
                         <div className="logo-corner">
-                            <img src="/images/logo.png" alt="Logo Lycée" />
+                            <img src="/images/logo-lycee.png.jpeg" alt="Logo Lycée" />
                         </div>
                     </div>
 
                     <div className="left-footer">
                         <div className="stat-row">
+                            <div className="contact-grid">
+                              <a href="tel:+212 539-717023"  className="contact-cell">
+                               <Phone size={14} className="contact-icon" />
+                               <span>+212 539-717023</span>
+                              </a>
+                             <a href="mailto:L.charifidrissitetouan@gmail.com" className="contact-cell">
+                               <Mail size={14} className="contact-icon" />
+                               <span>Email</span>
+                            </a>
+                            <a  href="https://www.facebook.com/Lycee.Charif.Idrissi/"  target="_blank"  rel="noopener noreferrer"  className="contact-cell" >
+                                  <FaFacebook size={14} className="contact-icon" />
+                                  <span>Facebook</span>
+                            </a>
+
+                            <a href="https://www.google.com/maps/search/?api=1&query=35.5692388,-5.361656" target="_blank"  rel="noopener noreferrer" className="contact-cell" >
+                                  <MapPin size={14} className="contact-icon" />
+                                  <span>Localisation</span>
+                            </a>
+                          </div>
                             <div className="stat-item">
                                 <strong>{new Date().getFullYear()}</strong>
                                 <span>{t('stat_year')}</span>
@@ -128,7 +149,7 @@ const Login = () => {
                                     animate={{ opacity: 1, y: 0, height: 'auto' }}
                                     exit={{ opacity: 0, y: -8, height: 0 }}
                                 >
-                                    <span className="error-icon">⚠</span>
+                                    <AlertTriangle size={14} className="error-icon" />
                                     {error}
                                 </motion.div>
                             )}
@@ -153,7 +174,7 @@ const Login = () => {
                             <div className="field-group">
                                 <label className="field-label">{t('password_label')}</label>
                                 <div className="field-input-wrap">
-                                    <span className="field-icon">⬡</span>
+                                    <Lock size={13} className="field-icon" />
                                     <input
                                         type={showPassword ? 'text' : 'password'}
                                         className="field-input"
@@ -167,7 +188,7 @@ const Login = () => {
                                         className="toggle-password"
                                         onClick={() => setShowPassword(p => !p)}
                                     >
-                                        {showPassword ? '🙈' : '👁'}
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                     </button>
                                 </div>
                             </div>
@@ -187,9 +208,14 @@ const Login = () => {
                             </motion.button>
                         </form>
 
-                        <div className="form-footer">
-                            <span>{t('no_account')}</span>
-                            <Link to="/register" className="register-link">{t('register_link')}</Link>
+                        <div className="form-footer-stack">
+                            <div className="form-footer">
+                                <span>{t('no_account')}</span>
+                                <Link to="/register" className="register-link">{t('register_link')}</Link>
+                            </div>
+                            <Link to="/forgot-password" className="forgot-link">
+                                {t('forgot_password_link')}
+                            </Link>
                         </div>
                     </div>
                 </motion.div>

@@ -158,29 +158,32 @@ const AcceptedStudents = () => {
     };
 
     const toggleSelect = (id) => {
-        if (!isEditing) return;
-        setSelectedIds(prev => {
-            if (prev.includes(id)) {
-                return prev.filter(item => item !== id);
-            } else {
-                return [...prev, id];
-            }
-        });
+    if (!isEditing) return;
+    const student = acceptedList.find(s => s.id === id);
+    if (student?.convocation_sent) return; 
+    setSelectedIds(prev => {
+        if (prev.includes(id)) {
+            return prev.filter(item => item !== id);
+        } else {
+            return [...prev, id];
+        }
+    });
     };
 
     const selectTopX = (count) => {
-        if (!isEditing) return;
-        if (!count || count <= 0) {
-            setSelectedIds([]);
-            setTopCount('');
-            return;
-        }
-        const topSelection = filteredList.slice(0, count).map(s => s.id);
-        setSelectedIds(topSelection);
-        setTopCount(count.toString());
+    if (!isEditing) return;
+    if (!count || count <= 0) {
+        setSelectedIds([]);
+        setTopCount('');
+        return;
+    }
+    const eligible = filteredList.filter(s => !s.convocation_sent);
+    const topSelection = eligible.slice(0, count).map(s => s.id);
+    setSelectedIds(topSelection);
+    setTopCount(count.toString());
     };
 
-    // Détermine si un candidat est en liste principale
+   
     const isInMainList = (studentId) => {
         if (isEditing) {
             return selectedIds.includes(studentId);
@@ -188,12 +191,12 @@ const AcceptedStudents = () => {
         return savedMainListIds.includes(studentId);
     };
 
-    // 🔥 TRI FINAL : Liste principale d'abord (par moyenne), puis attente (par moyenne)
+   
     const getDisplayList = () => {
         const mainList = [];
         const waitList = [];
         
-        // Utilise filteredList ou acceptedList selon s'il y a une recherche
+        
         const sourceList = searchTerm ? filteredList : acceptedList;
         
         sourceList.forEach(student => {
@@ -204,16 +207,16 @@ const AcceptedStudents = () => {
             }
         });
         
-        // Trie chaque groupe par moyenne décroissante
+       
         const sortByMean = (a, b) => parseFloat(calculateMean(b)) - parseFloat(calculateMean(a));
         mainList.sort(sortByMean);
         waitList.sort(sortByMean);
         
-        // Liste principale d'abord, puis attente
+       
         return [...mainList, ...waitList];
     };
 
-    // Récupère le rang dans la liste principale
+    
     const getMainListRank = (studentId) => {
         if (!isInMainList(studentId)) return null;
         const displayList = getDisplayList();
@@ -445,12 +448,13 @@ const AcceptedStudents = () => {
                                         >
                                             <td onClick={(e) => e.stopPropagation()}>
                                                 <input 
-                                                    type="checkbox" 
-                                                    className="modern-checkbox" 
-                                                    checked={selectedIds.includes(student.id)} 
-                                                    onChange={() => toggleSelect(student.id)} 
-                                                    disabled={!isEditing}
-                                                />
+                                                 type="checkbox" 
+                                                 className="modern-checkbox" 
+                                                 checked={selectedIds.includes(student.id)} 
+                                                 onChange={() => toggleSelect(student.id)} 
+                                                 disabled={!isEditing || student.convocation_sent}
+                                                 title={student.convocation_sent ? "Convocation déjà envoyée — verrouillé" : ""}
+                                             />
                                             </td>
                                             <td className="rank-col">
                                                 {isMainList ? (

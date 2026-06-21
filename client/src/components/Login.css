@@ -141,12 +141,15 @@
 /* Logo */
 .logo-corner {
   margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .logo-corner img {
-  width: 100px;
+  width: 110px;
   height: auto;
-  opacity: 0.85;
+  opacity: 0.9;
   transition: opacity 0.2s ease;
 }
 
@@ -163,7 +166,9 @@
 .stat-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 24px;
+  flex-direction: row-reverse;
 }
 
 .stat-item {
@@ -191,7 +196,49 @@
   height: 32px;
   background: var(--border-accent);
 }
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 20px;
+  margin-bottom: 16px;
+}
 
+.contact-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+
+.contact-cell .contact-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.contact-cell span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-cell:hover {
+  color :#0d9488;
+  border-bottom-color: rgba(45, 212, 191, 0.4);
+}
+
+.contact-cell:hover .contact-icon {
+  opacity: 1;
+}
 /* ── Right panel ─────────────────────────────────────────────── */
 .login-right {
   flex: 1;
@@ -294,7 +341,11 @@
   display: flex;
   align-items: center;
 }
-
+.contact-icon,
+.field-icon {
+  display: inline-flex;
+  align-items: center;
+}
 .field-icon {
   position: absolute;
   left: 14px;
@@ -340,6 +391,40 @@
 }
 
 .toggle-password:hover { opacity: 1; }
+
+/*mot de pass oublié*/
+
+.success-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #16a34a;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.form-footer-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.forgot-link {
+  font-size: 12.5px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.forgot-link:hover {
+  color: #2dd4bf;
+}
 
 /* Submit button */
 .btn-login {

@@ -99,8 +99,7 @@ const ProfileDrawer = ({ open, onClose, token }) => {
 
                         <div className="drawer-body">
                             <div className="drawer-avatar-section">
-                                <div className="drawer-avatar-wrap" onClick={() => fileRef.current.click()}>
-                                    {avatarPreview
+                            <div className={`drawer-avatar-wrap ${!isEditing ? 'avatar-readonly' : ''}`}  onClick={() => isEditing && fileRef.current.click()}>                                    {avatarPreview
                                         ? <img src={avatarPreview} alt="avatar" className="drawer-avatar-img" />
                                         : <div className="drawer-avatar-placeholder"><span>📷</span></div>
                                     }

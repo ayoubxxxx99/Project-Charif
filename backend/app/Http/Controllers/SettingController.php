@@ -45,7 +45,7 @@ class SettingController extends Controller
             ['value' => json_encode($newIds)]
         );
 
-        // 🔥 Notif : étudiants ajoutés à la liste principale
+        //étudiants ajoutés à la liste principale
         $addedIds = array_diff($newIds, $oldIds);
         foreach ($addedIds as $id) {
             $student = Application::find($id);
@@ -58,7 +58,7 @@ class SettingController extends Controller
             }
         }
 
-        // 🔥 Notif : étudiants retirés de la liste principale
+        //étudiants retirés de la liste principale
         $removedIds = array_diff($oldIds, $newIds);
         foreach ($removedIds as $id) {
             $student = Application::find($id);

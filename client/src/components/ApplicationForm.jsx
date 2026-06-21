@@ -53,7 +53,7 @@ const ApplicationForm = () => {
        
         const parts = raw.split('.');
         if (parts.length > 1 && parts[1].length > 2) {
-            return; // Ignore la frappe
+            return; 
         }
 
         const val = parseFloat(raw);
@@ -175,10 +175,15 @@ const ApplicationForm = () => {
                     initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 >
-                    <div className="af-warning">
-                        <span className="af-warning-icon">⚠</span>
-                        <p><strong>{t('common.warning')}</strong> — {t('reg_form_desc')}</p>
+                <div className="af-warning">
+                    <span className="af-warning-icon">⚠</span>
+                    <div className="af-warning-text">
+                        <p className="af-warning-title">{t('common.warning')}</p>
+                        <p>{t('warning_line_1')}</p>
+                        <p>{t('warning_line_2')}</p>
+                        <p>{t('warning_line_3')}</p>
                     </div>
+                </div>
 
                     <form onSubmit={handleSubmit} noValidate>
 

@@ -7,6 +7,8 @@ import StudentHome from './components/StudentHome';
 import ProtectedRoute from './components/ProtectedRoute';
 import AcceptedStudents from './components/AcceptedStudents';
 import SecretaryDashboard from './components/SecretaryDashboard';
+import ForgotPassword from './components/ForgotPassword';
+
 function App() {
     return (
         <Routes>
@@ -35,16 +37,17 @@ function App() {
                 </ProtectedRoute>
             } />
             
-<Route path="/admin/accepted" element={
-    <ProtectedRoute requiredRole="admin">
-        <AcceptedStudents />
-    </ProtectedRoute>
-} />
-<Route path="/secretary" element={
+            <Route path="/admin/accepted" element={
+                <ProtectedRoute requiredRole="admin">
+                    <AcceptedStudents />
+                </ProtectedRoute>
+            } />
+            <Route path="/secretary" element={
                 <ProtectedRoute requiredRole="secretary">
                     <SecretaryDashboard />
                 </ProtectedRoute>
             } />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
         </Routes>
     );

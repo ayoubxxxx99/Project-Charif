@@ -9,7 +9,7 @@ class ProfileController extends Controller
 {
     public function show(Request $request)
     {
-        // On récupère l'utilisateur ET son profil lié
+        
         $user = $request->user()->load('profile');
         return response()->json($user->profile ?: []);
     }
@@ -23,16 +23,16 @@ class ProfileController extends Controller
             'date_of_birth'  => 'nullable|date',
             'guardian_name'  => 'nullable|string|max:255',
             'guardian_phone' => 'nullable|string|max:20',
-            'avatar'         => 'nullable|image|max:2048', // Validation pour l'image
+            'avatar'         => 'nullable|image|max:2048',
         ]);
 
-        // Gestion de l'image
+        
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('avatars', 'public');
             $data['avatar_path'] = $path;
         }
 
-        // CORRECT : On met à jour (ou on crée) dans la table PROFILES
+        
         $profile = $user->profile()->updateOrCreate(
             ['user_id' => $user->id],
             $data

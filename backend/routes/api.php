@@ -7,12 +7,16 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\NotificationLogController;
 
-// --- Public Routes ---
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+    // --- Public Routes ---
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    //Mot de pass oubliée
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/verify-reset-code', [AuthController::class, 'verifyResetCode']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-// --- Protected Routes ---
-Route::middleware('auth:sanctum')->group(function () {
+    // --- Protected Routes ---
+    Route::middleware('auth:sanctum')->group(function () {
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'show']);
@@ -39,4 +43,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/notification-logs/check-all', [NotificationLogController::class, 'checkAll']);
     Route::put('/notification-logs/{id}/check', [NotificationLogController::class, 'toggleCheck']);
     Route::delete('/notification-logs/clear', [NotificationLogController::class, 'clear']);
-});
+
+    
+    });

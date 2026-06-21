@@ -104,7 +104,7 @@
       "title": "Dossier en étude",
       "message": "Votre demande est en cours de traitement par l'administration."
     }
-},
+  },
   "rank": "Rang de candidature : #{{rank}} sur {{total}}",
 
   "empty": {
@@ -121,7 +121,9 @@
     "full_name": "Ex: Mohammed Alami",
     "massar": "Ex: J123456789"
   },
-  "reg_form_desc_warning": "Veuillez vérifier scrupuleusement vos notes. Toute fausse déclaration entraînera le rejet automatique de votre dossier.",
+  "warning_line_1": "- Veuillez vérifier scrupuleusement toutes vos informations et vos notes avant de soumettre.",
+  "warning_line_2": "- Toute information manquante, incorrecte ou fausse déclaration entraînera le rejet automatique de votre dossier.",
+  "warning_line_3": "- Une fois votre candidature envoyée, vous ne pourrez plus la modifier ni soumettre une nouvelle demande.",
   "errors": {
     "field_required": "Ce champ est obligatoire.",
     "massar_format": "Format invalide — ex: J123456789 (1 lettre + 9 chiffres)",
@@ -130,5 +132,26 @@
     "grade_max": "La note ne peut pas dépasser 20.",
     "grade_range": "Toutes les notes doivent être entre 0 et 20."
 
-  }
+  },
+  "forgot_password_link": "Mot de passe oublié ?",
+"fp_eyebrow": "Portail sécurisé",
+"fp_left_title_1": "Récupération",
+"fp_left_title_2": "de compte",
+"fp_left_subtitle": "Réinitialisez votre mot de passe en toute sécurité en quelques étapes.",
+"fp_title_step1": "Mot de passe oublié",
+"fp_title_step2": "Nouveau mot de passe",
+"fp_desc_step1": "Entrez votre email pour recevoir un code de réinitialisation.",
+"fp_desc_step2": "Un code a été envoyé à {{email}}. Entrez-le ci-dessous.",
+"fp_btn_send": "Envoyer le code",
+"fp_code_label": "Code reçu par email",
+"fp_new_password_label": "Nouveau mot de passe",
+"fp_confirm_password_label": "Confirmer le mot de passe",
+"fp_btn_reset": "Réinitialiser",
+"fp_remember_password": "Vous vous souvenez de votre mot de passe ?",
+"fp_back_to_login": "Se connecter",
+"fp_success_sent": "Code envoyé. Vérifiez votre boîte mail.",
+"fp_success_reset": "Mot de passe réinitialisé avec succès !",
+"fp_error_generic": "Une erreur est survenue.",
+"fp_error_mismatch": "Les mots de passe ne correspondent pas.",
+"fp_error_invalid_code": "Code invalide ou expiré."
 }

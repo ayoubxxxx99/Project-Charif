@@ -47,9 +47,7 @@ const SecretaryDashboard = () => {
         return (total / grades.length).toFixed(2);
     };
 
-    // ✅ FIX 1 : addToChangeLog supprimé — les notifs viennent uniquement de l'API
-
-    // ✅ FIX 1 : fetchMainListCount simplifié, sans détection locale de changements
+    
     const fetchMainListCount = useCallback(async () => {
         try {
             const res = await axios.get('http://127.0.0.1:8000/api/settings/main-list-count', {
@@ -67,7 +65,7 @@ const SecretaryDashboard = () => {
         }
     }, [token]);
 
-    // ✅ FIX 1 : fetchAccepted simplifié, sans détection locale de changements
+    
     const fetchAccepted = useCallback(async () => {
         try {
             const res = await axios.get('http://127.0.0.1:8000/api/applications', {
@@ -83,7 +81,7 @@ const SecretaryDashboard = () => {
         }
     }, [token, navigate]);
 
-    // ✅ fetchNotifications — source unique de vérité pour les notifications
+    
     const fetchNotifications = useCallback(async () => {
         try {
             const res = await axios.get('http://127.0.0.1:8000/api/notification-logs', {
@@ -108,7 +106,7 @@ const SecretaryDashboard = () => {
         fetchNotifications();
     }, []);
 
-    // ✅ FIX 2 : fetchNotifications ajouté dans les dépendances du setInterval
+    
     useEffect(() => {
         const interval = setInterval(() => {
             fetchMainListCount();
@@ -227,7 +225,7 @@ const SecretaryDashboard = () => {
         navigate('/login');
     };
 
-    // ✅ Ouvre le panel sans cocher automatiquement — checkbox est manuel
+    
     const handleOpenChanges = () => {
         setShowChangesPanel(true);
     };
@@ -639,7 +637,7 @@ const SecretaryDashboard = () => {
                                 transition={{ type: 'spring', stiffness: 300, damping: 28 }}
                                 onClick={e => e.stopPropagation()}
                             >
-                                {/* ✅ FIX 3 : Bouton 🗑️ ajouté dans le header */}
+                                {/*  Bouton 🗑️ ajouté dans le header */}
                                 <div className="changes-panel-header">
                                     <div>
                                         <h3>📋 Historique des modifications</h3>
