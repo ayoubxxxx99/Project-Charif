@@ -85,7 +85,7 @@ public function forgotPassword(Request $request)
         ['email' => $request->email],
         [
             'code' => $code,
-            'expires_at' => Carbon::now()->addMinutes(10),
+            'expires_at' => Carbon::now()->addMinutes(3),
             'updated_at' => Carbon::now(),
             'created_at' => Carbon::now(),
         ]

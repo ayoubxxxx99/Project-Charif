@@ -230,13 +230,13 @@ const StudentHome = () => {
     const [loading, setLoading] = useState(true);
     const [drawerOpen, setDrawerOpen] = useState(false);
     
-    // 🔥 NOUVEAUX STATES pour rang et liste principale
+    // rang 
     const [studentRank, setStudentRank] = useState(null);
     const [mainListInfo, setMainListInfo] = useState({ isMain: false, mainListIds: [] });
     
     const token = localStorage.getItem('token');
 
-    // 🔥 REMPLACÉ : Récupère aussi le classement et la liste principale
+    // Récupère aussi le classement et la liste principale
     useEffect(() => {
         if (!token) { setLoading(false); return; }
         
@@ -293,7 +293,29 @@ const StudentHome = () => {
         const total = grades.reduce((sum, g) => sum + parseFloat(g || 0), 0);
         return (total / grades.length);
     };
-
+const handleDownloadReceipt = async () => {
+    try {
+        const response = await axios.get(
+            'http://127.0.0.1:8000/api/receipt/download',
+            {
+                headers: { Authorization: `Bearer ${token}` },
+                responseType: 'blob'
+            }
+        );
+        
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `recu-candidature-${application.massar_code}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+    } catch (err) {
+        console.error('Erreur téléchargement:', err);
+        alert('Impossible de télécharger le reçu');
+    }
+};
     const subjects = [
         { key: 'maths',              label: t('subjects.maths') },
         { key: 'physique',           label: t('subjects.physics') },
@@ -304,7 +326,7 @@ const StudentHome = () => {
         { key: 'sport',              label: t('subjects.sport') },
     ];
 
-    // 🔥 REMPLACÉ : Configuration des statuts avec sous-catégories pour accepted
+    // Configuration des statuts avec sous-catégories pour accepted
     const getStatusConfig = (app) => {
         if (!app) return null;
 
@@ -341,7 +363,7 @@ const StudentHome = () => {
                     icon: '📧',
                     title: t('status.convocation.title'),
                     message: t('status.convocation.message'),
-                    showDownload: true,
+                    
                 };
             }
 
@@ -488,18 +510,12 @@ const StudentHome = () => {
                                             </div>
                                         </div>
                                         
-                                        {/* 🔥 MODIFIÉ : Bouton conditionnel */}
+                                        {/*  MODIFIÉ : Bouton conditionnel */}
                                         <div className="sh-status-footer">
-                                            {cfg.showDownload ? (
-                                                <button className="sh-btn-primary">📥 Télécharger la convocation</button>
-                                            ) : application?.status === 'rejected' ? (
-                                                <button className="sh-btn-secondary" disabled>{t('dashboard.support')}</button>
-                                            ) : (
-                                                <button className="sh-btn-secondary" onClick={() => window.open('mailto:support@lci.ma')}>
-                                                    {t('dashboard.contact_support')}
-                                                </button>
-                                            )}
-                                        </div>
+    <button className="sh-btn-primary" onClick={handleDownloadReceipt}>
+        📥 {t('dashboard.download_receipt') || 'Télécharger mon reçu de candidature'}
+    </button>
+</div>
                                     </div>
                                 </div>
 

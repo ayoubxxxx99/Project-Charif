@@ -426,7 +426,7 @@
 }
 
 .btn-save:hover {
-  background: #22c55e;
+  background: rgba(52, 211, 153, 0.3);
   transform: translateY(-1px);
 }
 

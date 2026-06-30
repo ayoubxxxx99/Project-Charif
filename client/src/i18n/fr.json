@@ -61,7 +61,8 @@
     "download_btn": "Télécharger le reçu",
     "support_btn": "Besoin d'aide ?",
     "grades_title": "Relevé de notes",
-    "contact_support": "Contacter le support"
+    "contact_support": "Contacter le support",
+    "download_receipt": " Télécharger la convocation"
   },
   "subjects": {
     "maths": "Mathématiques",

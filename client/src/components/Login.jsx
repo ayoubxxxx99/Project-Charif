@@ -76,21 +76,21 @@ const Login = () => {
                         </h1>
                         <p className="left-subtitle">{t('left_subtitle')}</p>
                         <div className="logo-corner">
-                            <img src="/images/logo-lycee.png.jpeg" alt="Logo Lycée" />
+                            <img src="/images/logo-lycee.png" alt="Logo Lycée Charif Idrissi" />
                         </div>
                     </div>
 
                     <div className="left-footer">
                         <div className="stat-row">
                             <div className="contact-grid">
-                              <a href="tel:+212 539-717023"  className="contact-cell">
-                               <Phone size={14} className="contact-icon" />
-                               <span>+212 539-717023</span>
+                              <a href="tel:+212539717023" className="contact-cell">
+                                  <Phone size={14} className="contact-icon" />
+                                  <span dir="ltr">+212 539-717023</span>
                               </a>
-                             <a href="mailto:L.charifidrissitetouan@gmail.com" className="contact-cell">
-                               <Mail size={14} className="contact-icon" />
-                               <span>Email</span>
-                            </a>
+                              <a href="mailto:L.charifidrissitetouan@gmail.com" className="contact-cell">
+                                  <Mail size={14} className="contact-icon" />
+                                  <span dir="ltr">Email</span>
+                              </a>
                             <a  href="https://www.facebook.com/Lycee.Charif.Idrissi/"  target="_blank"  rel="noopener noreferrer"  className="contact-cell" >
                                   <FaFacebook size={14} className="contact-icon" />
                                   <span>Facebook</span>
@@ -163,7 +163,7 @@ const Login = () => {
                                     <input
                                         type="email"
                                         className="field-input"
-                                        placeholder="admin@charif-idrissi.ma"
+                                        placeholder="exemple@gmail.com"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
                                         required

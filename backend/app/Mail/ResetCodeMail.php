@@ -20,6 +20,6 @@ class ResetCodeMail extends Mailable
     public function build()
     {
         return $this->subject('Code de réinitialisation - LCI')
-                    ->view('emails.reset-code');
+                    ->view('emails.reset_password');
     }
 }

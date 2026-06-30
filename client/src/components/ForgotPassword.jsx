@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
 import { Mail, Lock, KeyRound, AlertTriangle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import './Login.css';
 
@@ -21,7 +21,11 @@ const ForgotPassword = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-
+    
+    useEffect(() => {
+    document.documentElement.dir = i18n.language === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = i18n.language;
+    }, [i18n.language]);
     
     const handleSendCode = async (e) => {
         e.preventDefault();
@@ -93,7 +97,7 @@ const ForgotPassword = () => {
                         </h1>
                         <p className="left-subtitle">{t('fp_left_subtitle')}</p>
                         <div className="logo-corner">
-                            <img src="/images/logo-lycee.png.jpeg" alt="Logo Lycée" />
+                            <img src="/images/logo-lycee.png" alt="Logo Lycée" />
                         </div>
                     </div>
 
@@ -101,12 +105,12 @@ const ForgotPassword = () => {
                         <div className="stat-row">
                             <div className="stat-item">
                                 <strong>2026</strong>
-                                <span>Année scolaire</span>
+                                <span>{t('stat_year')}</span>
                             </div>
                             <div className="stat-sep" />
                             <div className="stat-item">
-                                <strong>Tétouan</strong>
-                                <span>Tétouan, Maroc</span>
+                                <strong>{t('stat_ville')}</strong>
+                                <span>{t('stat_location')}</span>
                             </div>
                         </div>
                     </div>
@@ -177,7 +181,7 @@ const ForgotPassword = () => {
                                         <input
                                             type="email"
                                             className="field-input"
-                                            placeholder="admin@charif-idrissi.ma"
+                                            placeholder="exemple@gmail.com"
                                             value={email}
                                             onChange={e => setEmail(e.target.value)}
                                             required

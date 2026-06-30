@@ -197,7 +197,7 @@ const ApplicationForm = () => {
                                 <div className="af-field-group">
                                     <label className="af-label">
                                         {t('profile.full_name')}
-                                        <span className="af-readonly-badge">{t('common.readonly')}</span>
+                                       
                                     </label>
                                     <div className="af-input-readonly-wrap">
                                         <span className="af-readonly-icon">👤</span>
@@ -205,7 +205,6 @@ const ApplicationForm = () => {
                                             type="text"
                                             className="af-input af-input-readonly"
                                             value={formData.full_name}
-                                            readOnly
                                             tabIndex={-1}
                                         />
                                     </div>

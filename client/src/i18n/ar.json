@@ -61,7 +61,8 @@
     "download_btn": "تحميل الوصل",
     "support_btn": "تحتاج مساعدة؟",
     "grades_title": "بيان النقط",
-    "contact_support":"اتصل بالدعم"
+    "contact_support":"اتصل بالدعم",
+    "download_receipt": " تحميل الاستدعاء"
   },
   "subjects": {
     "maths": "الرياضيات",

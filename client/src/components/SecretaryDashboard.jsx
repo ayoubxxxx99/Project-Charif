@@ -415,11 +415,18 @@ const SecretaryDashboard = () => {
                                         </div>
                                     </div>
 
-                                    {selectedIds.length > 0 && (
-                                        <span className="selected-count-inline">
-                                            <strong>{selectedIds.length}</strong> sélectionné{selectedIds.length > 1 ? 's' : ''}
-                                        </span>
-                                    )}
+                                     <AnimatePresence>
+                                            {selectedIds.length > 0 && (
+                                                <motion.div
+                                                    className="bulk-btns-inline"
+                                                    initial={{ opacity: 0, x: -10 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    exit={{ opacity: 0, x: -10 }}
+                                                >
+                                                    <span className="bulk-count-inline">{selectedIds.length} sélectionné{selectedIds.length > 1 ? 's' : ''}</span>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
 
                                     <div className="v-divider" />
 

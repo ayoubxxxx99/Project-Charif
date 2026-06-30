@@ -405,7 +405,9 @@
   transition: color 0.2s ease;
 }
 
-.reg-login-link:hover { color: #2dd4bf; }
+.reg-login-link:hover {
+   color: #0f766e
+   }
 
 /* ── Language toggle ─────────────────────────────────────────── */
 .reg-lang-toggle {

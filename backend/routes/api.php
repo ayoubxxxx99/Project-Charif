@@ -6,17 +6,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\NotificationLogController;
+use App\Http\Controllers\ReceiptController;
 
-    // --- Public Routes ---
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    //Mot de pass oubliée
-    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-    Route::post('/verify-reset-code', [AuthController::class, 'verifyResetCode']);
-    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+// --- Public Routes ---
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/verify-reset-code', [AuthController::class, 'verifyResetCode']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-    // --- Protected Routes ---
-    Route::middleware('auth:sanctum')->group(function () {
+// --- Protected Routes ---
+Route::middleware('auth:sanctum')->group(function () {
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'show']);
@@ -37,12 +37,14 @@ use App\Http\Controllers\NotificationLogController;
     Route::get('/settings/main-list-count', [SettingController::class, 'getMainListCount']);
     Route::put('/settings/main-list-count', [SettingController::class, 'updateMainListCount']);
 
-    // Notifications — check-all AVANT {id} pour éviter le conflit
+    // Notifications
     Route::get('/notification-logs', [NotificationLogController::class, 'index']);
     Route::post('/notification-logs', [NotificationLogController::class, 'store']);
     Route::put('/notification-logs/check-all', [NotificationLogController::class, 'checkAll']);
     Route::put('/notification-logs/{id}/check', [NotificationLogController::class, 'toggleCheck']);
     Route::delete('/notification-logs/clear', [NotificationLogController::class, 'clear']);
-
+     
+    // PDF 
+    Route::get('/receipt/download', [ReceiptController::class, 'download']);
     
-    });
+});

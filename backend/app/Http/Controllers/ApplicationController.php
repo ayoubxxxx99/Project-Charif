@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
-use App\Services\NotificationService; 
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\ConvocationMail;
 
 class ApplicationController extends Controller
 {
@@ -55,24 +55,7 @@ class ApplicationController extends Controller
         ]);
 
         $application = Application::findOrFail($id);
-        $oldStatus = $application->status;
-        
         $application->update(['status' => $request->status]);
-
-        if ($oldStatus !== $request->status) {
-            if ($request->status === 'accepted') {
-                $type = 'to_main';
-                $detail = "{$application->full_name} — Accepté (Liste Principale)";
-            } elseif ($request->status === 'rejected') {
-                $type = 'removed';
-                $detail = "{$application->full_name} — Refusé";
-            } else {
-                $type = 'to_wait';
-                $detail = "{$application->full_name} — Mis en attente";
-            }
-
-            NotificationService::notifySecretaries($type, $application->full_name, $detail);
-        }
 
         return response()->json($application);
     }
@@ -85,27 +68,9 @@ class ApplicationController extends Controller
             'status' => 'required|in:accepted,rejected,pending',
         ]);
 
-        $applications = Application::whereIn('id', $request->ids)->get();
-        
-        foreach ($applications as $application) {
-            $oldStatus = $application->status;
-            $application->update(['status' => $request->status]);
-            
-            if ($oldStatus !== $request->status) {
-                if ($request->status === 'accepted') {
-                    $type = 'to_main';
-                    $detail = "{$application->full_name} — Accepté (Liste Principale)";
-                } elseif ($request->status === 'rejected') {
-                    $type = 'removed';
-                    $detail = "{$application->full_name} — Refusé";
-                } else {
-                    $type = 'to_wait';
-                    $detail = "{$application->full_name} — Mis en attente";
-                }
-
-                NotificationService::notifySecretaries($type, $application->full_name, $detail);
-            }
-        }
+        Application::whereIn('id', $request->ids)->update([
+            'status' => $request->status
+        ]);
 
         return response()->json(['message' => 'Applications updated successfully']);
     }
@@ -127,57 +92,41 @@ class ApplicationController extends Controller
         $students = Application::whereIn('id', $request->ids)->get();
 
         foreach ($students as $student) {
-            $data = [
-                'name' => $student->full_name,
-                'date' => $request->date,
-                'time' => $request->time,
-            ];
+            try {
+                Mail::to($student->email)->send(new ConvocationMail($student, $request->date, $request->time));
 
-            $pdf = Pdf::loadView('emails.convocation_pdf', $data);
+                $student->update(['convocation_sent' => true]);
 
-            Mail::send([], [], function ($message) use ($student, $pdf) {
-                $message->to($student->email)
-                    ->subject('Convocation Officielle - Lycée Charif Idrissi')
-                    ->html("Bonjour {$student->full_name}, <br><br> Félicitations ! Votre candidature est acceptée. Veuillez trouver votre convocation en pièce jointe.")
-                    ->attachData($pdf->output(), "convocation_{$student->massar_code}.pdf");
-            });
-            
-            $student->convocation_sent = true;
-            $student->save();
+                NotificationService::notifySecretaries(
+                    'convocation',
+                    $student->full_name,
+                    "{$student->full_name} — Convocation envoyée"
+                );
 
-            NotificationService::notifySecretaries(
-                'convocation',
-                $student->full_name,
-                "{$student->full_name} — Convocation envoyée"
-            );
-        }
+            } catch (\Exception $e) {
+                \Log::error('Erreur envoi convocation: ' . $e->getMessage());
+                return response()->json([
+                    'error' => 'Erreur lors de l\'envoi: ' . $e->getMessage()
+                ], 500);
+            }
+        } 
+        // 1. Générer le PDF (document à imprimer)
+        //$pdf = Pdf::loadView('emails.convocation_pdf', $data);
+
+        // 2. Envoyer l'email HTML + PDF joint
+       // Mail::send('emails.convocation_email', $data, function ($message) use ($student, $pdf) {
+         //   $message->to($student->email)
+           //     ->subject('Convocation — Dépôt des documents | Lycée Charif Idrissi')
+             //   ->attachData($pdf->output(), "convocation_{$student->massar_code}.pdf");
+        //});
+        
+        //$student->convocation_sent = true;
+        //$student->save();Mail::to($student->email)->send(new ConvocationMail($student, $request->date, $request->time));
+
 
         return response()->json([
             'message' => 'Convocations envoyées avec succès',
             'count' => count($students)
         ]);
     }
-
-    public function saveConvocationStatus(Request $request)
-    {
-        $request->validate([
-            'ids' => 'required|array',
-            'ids.*' => 'integer|exists:applications,id'
-        ]);
-
-        Application::whereIn('id', $request->ids)
-            ->update(['convocation_sent' => true]);
-
-        return response()->json([
-            'message' => 'Statut des convocations enregistré',
-            'count' => count($request->ids)
-        ]);
-    }
-# public function getChangeHistory(Request $request)
-#   {
-#      return response()->json([
-#        'message' => 'Utilisez le stockage local pour l\'historique'
-# ]);
-#}
-
 }

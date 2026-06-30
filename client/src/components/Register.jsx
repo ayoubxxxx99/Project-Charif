@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, EyeOff, Lock, User, AtSign, AlertTriangle } from 'lucide-react';
 import './Register.css';
 
 const Register = () => {
@@ -48,10 +49,10 @@ const Register = () => {
     };
 
     const fields = [
-        { key: 'name',                  label: t('name_label'),             type: 'text',     placeholder: 'Nom et prénom',           icon: '✦' },
-        { key: 'email',                 label: t('email_label'),            type: 'email',    placeholder: 'test@charif-idrissi.ma', icon: '@' },
-        { key: 'password',              label: t('password_label'),         type: 'password', placeholder: '••••••••••',             icon: '⬡' },
-        { key: 'password_confirmation', label: t('confirm_password_label'), type: 'password', placeholder: '••••••••••',             icon: '⬡' },
+        { key: 'name',                  label: t('name_label'),             type: 'text',     placeholder: t('name_label'),           icon: <User size={14} /> },
+        { key: 'email',                 label: t('email_label'),            type: 'email',    placeholder: 'exemple@gmail.com',  icon: <AtSign size={14} /> },
+        { key: 'password',              label: t('password_label'),         type: 'password', placeholder: '••••••••••',              icon: <Lock size={13} /> },
+        { key: 'password_confirmation', label: t('confirm_password_label'), type: 'password', placeholder: '••••••••••',              icon: <Lock size={13} /> },
     ];
 
     return (
@@ -136,7 +137,7 @@ const Register = () => {
                                     animate={{ opacity: 1, y: 0, height: 'auto' }}
                                     exit={{ opacity: 0, y: -8, height: 0 }}
                                 >
-                                    <span>⚠</span> {error}
+                                    <AlertTriangle size={14} className="error-icon" /> {error}
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -161,7 +162,7 @@ const Register = () => {
                                                 className="reg-toggle-pw"
                                                 onClick={() => setShowPassword(p => !p)}
                                             >
-                                                {showPassword ? '🙈' : '👁'}
+                                                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                             </button>
                                         )}
                                     </div>
