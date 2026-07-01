@@ -172,14 +172,17 @@ const AcceptedStudents = () => {
 
     const selectTopX = (count) => {
     if (!isEditing) return;
+    const locked = filteredList.filter(s => s.convocation_sent && selectedIds.includes(s.id)).map(s => s.id);
+
     if (!count || count <= 0) {
-        setSelectedIds([]);
-        setTopCount('');
+        setSelectedIds(locked);
+        setTopCount(locked.length > 0 ? locked.length.toString() : '');
         return;
     }
     const eligible = filteredList.filter(s => !s.convocation_sent);
-    const topSelection = eligible.slice(0, count).map(s => s.id);
-    setSelectedIds(topSelection);
+    const remainingSlots = Math.max(0, count - locked.length);
+    const topSelection = eligible.slice(0, remainingSlots).map(s => s.id);
+    setSelectedIds([...locked, ...topSelection]);
     setTopCount(count.toString());
     };
 
@@ -225,6 +228,12 @@ const AcceptedStudents = () => {
         return index !== -1 ? index + 1 : null;
     };
 
+    const displayedStudents = getDisplayList();
+    const mainListDisplayCount = displayedStudents.filter(s => isInMainList(s.id)).length;
+    const waitListDisplayCount = displayedStudents.length - mainListDisplayCount;
+
+   
+
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="accepted-page-wrapper">
             <div className="accepted-container">
@@ -243,7 +252,7 @@ const AcceptedStudents = () => {
 
                     <div className="header-actions">
                         <button className="btn-convocation-header" onClick={exportToExcel}>
-                            <span className="btn-icon">📥</span>
+                            <span className="btn-icon"></span>
                             Exporter vers Excel
                         </button>
                         <button className="btn-logout-minimal" onClick={handleLogout}>
@@ -269,28 +278,14 @@ const AcceptedStudents = () => {
                         <div className="v-divider" />
 
                         <div className="stat-chip">
-                            <span className="stat-label">Total</span>
-                            <strong className="stat-value">{acceptedList.length}</strong>
-                        </div>
-                       
-                        <div className="stat-chip">
                           <span className="stat-dot dot-green" />
                           <span className="stat-label">P</span>
-                          <strong className="stat-value text-green">
-                                {isEditing
-                                 ? Math.min(selectedIds.length, acceptedList.length)
-                                 : Math.min(savedMainListIds.length, acceptedList.length)
-                                }
-                            </strong>
+                          <strong className="stat-value text-green">{mainListDisplayCount}</strong>
                          </div>
                          <div className="stat-chip">
                            <span className="stat-dot dot-amber" />
                            <span className="stat-label">A</span>
-                           <strong className="stat-value text-amber">
-                             {isEditing
-                                 ? Math.max(0, acceptedList.length - selectedIds.length)
-                                 : Math.max(0, acceptedList.length - savedMainListIds.length)}
-                           </strong>
+                           <strong className="stat-value text-amber">{waitListDisplayCount}</strong>
                        </div>
                     </div>
 
@@ -306,7 +301,7 @@ const AcceptedStudents = () => {
                                     className="btn-edit"
                                     onClick={handleEdit}
                                 >
-                                    ✏️ Modifier
+                                    Modifier
                                 </motion.button>
                             ) : (
                                 <motion.div
@@ -317,7 +312,7 @@ const AcceptedStudents = () => {
                                     className="edit-mode-toolbar"
                                 >
                                     <div className="selection-group-inline">
-                                        <span className="selection-label-inline">📋 Sélection</span>
+                                        <span className="selection-label-inline"> Sélection</span>
                                         <div className="stepper-frame mini-stepper">
                                             <input 
                                                 type="number"
@@ -392,7 +387,7 @@ const AcceptedStudents = () => {
                                         onClick={handleSave}
                                         disabled={isSaving}
                                     >
-                                        {isSaving ? '💾 ...' : '💾 Enregistrer'}
+                                        {isSaving ? ' ...' : ' Enregistrer'}
                                     </button>
                                 </motion.div>
                             )}
@@ -411,9 +406,11 @@ const AcceptedStudents = () => {
                                         checked={isEditing && selectedIds.length === filteredList.length && filteredList.length > 0}
                                         onChange={() => {
                                             if (!isEditing) return;
-                                            if (selectedIds.length === filteredList.length) {
-                                                setSelectedIds([]);
-                                                setTopCount('');
+                                            const lockedIds = filteredList.filter(s => s.convocation_sent).map(s => s.id);
+                                            const allSelected = filteredList.every(s => s.convocation_sent || selectedIds.includes(s.id));
+                                            if (allSelected) {
+                                                setSelectedIds(lockedIds);
+                                                setTopCount(lockedIds.length > 0 ? lockedIds.length.toString() : '');
                                             } else {
                                                 const allIds = filteredList.map(s => s.id);
                                                 setSelectedIds(allIds);
