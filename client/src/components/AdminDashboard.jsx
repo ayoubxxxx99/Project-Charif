@@ -205,7 +205,7 @@ const AdminDashboard = () => {
 
                     <div className="header-actions">
                         <button className="btn-accepted-header" onClick={() => navigate('/admin/accepted')}>
-                            <span>✅</span> Candidats acceptés
+                             Candidats acceptés
                         </button>
                         <button className="btn-logout-minimal" onClick={handleLogout}>
                             Quitter <span>→</span>
@@ -228,7 +228,7 @@ const AdminDashboard = () => {
                         <div className="select-wrapper">
                             <select className="modern-select" onChange={(e) => setFilterStatus(e.target.value)}>
                                 <option value="all">Tous les statuts</option>
-                                <option value="pending">🟡 En attente</option>
+                                <option value="pending"> 🟡 En attente</option>
                                 <option value="accepted">🟢 Acceptés</option>
                                 <option value="rejected">🔴 Refusés</option>
                             </select>
@@ -249,7 +249,7 @@ const AdminDashboard = () => {
                                     className="btn-edit"
                                     onClick={handleEdit}
                                 >
-                                    ✏️ Modifier
+                                    Modifier
                                 </motion.button>
                             ) : (
                                 <motion.div
@@ -260,7 +260,7 @@ const AdminDashboard = () => {
                                     className="edit-mode-toolbar"
                                 >
                                     <div className="selection-group-inline">
-                                        <span className="selection-label-inline">📋 Sélection</span>
+                                        <span className="selection-label-inline"> Sélection</span>
                                         <div className="stepper-frame mini-stepper">
                                             <input 
                                                 type="number"
@@ -333,7 +333,7 @@ const AdminDashboard = () => {
                                         onClick={handleSave}
                                         disabled={isSaving}
                                     >
-                                        {isSaving ? '💾 ...' : '💾 Enregistrer'}
+                                        {isSaving ? ' ...' : ' Enregistrer'}
                                     </button>
                                 </motion.div>
                             )}
@@ -406,8 +406,8 @@ const AdminDashboard = () => {
                                             {/* ── ÉTAT EMAIL ── */}
                                             <td>
                                                 {student.convocation_sent
-                                                    ? <span className="email-sent-badge">✅ Envoyé</span>
-                                                    : <span className="email-pending-badge">⏳ En attente</span>
+                                                    ? <span className="email-sent-badge"> Envoyé</span>
+                                                    : <span className="email-pending-badge"> En attente</span>
                                                 }
                                             </td>
                                             <td className="text-right" onClick={(e) => e.stopPropagation()}>

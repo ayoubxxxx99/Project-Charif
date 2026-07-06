@@ -331,7 +331,7 @@ const SecretaryDashboard = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             onClick={handleOpenChanges}
                         >
-                            🔔 Modifications
+                             Modifications
                             {unseenCount > 0 && (
                                 <motion.span className="notif-badge" key={unseenCount} initial={{ scale: 1.4 }} animate={{ scale: 1 }}>
                                     {unseenCount}
@@ -383,7 +383,7 @@ const SecretaryDashboard = () => {
                                     exit={{ opacity: 0, scale: 0.9 }}
                                     onClick={handleEdit}
                                 >
-                                    ✏️ Modifier
+                                     Modifier
                                 </motion.button>
                             ) : (
                                 <motion.div
