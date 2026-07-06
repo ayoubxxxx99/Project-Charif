@@ -80,7 +80,7 @@ const ApplicationForm = () => {
     const handleBlur = (field) => (e) => {
     const raw = formData[field];
     if (raw === '' || raw === null) return;
-    const val = Math.round(parseFloat(raw) * 100) / 100;
+    const val = Math.round((parseFloat(raw) + Number.EPSILON) * 100) / 100;
     if (!isNaN(val)) {
         setFormData(prev => ({ 
             ...prev, 
