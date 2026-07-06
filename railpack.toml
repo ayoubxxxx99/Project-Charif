@@ -1,0 +1,16 @@
+[build]
+command = """
+cd backend && composer install --no-dev --optimize-autoloader && php artisan migrate --force &
+cd ../client && npm install && npm run build
+"""
+
+[run]
+command = """
+cd backend && php artisan serve --host=0.0.0.0 --port=8000 &
+cd ../client && npx serve -s dist -l 3000
+"""
+
+[phases]
+setup = """
+apt-get update && apt-get install -y nodejs npm php composer
+"""
